@@ -1,3 +1,5 @@
+using static QuizAPI.Middleware.APIKeyMiddleware;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -21,5 +23,7 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.UseMiddleware<QuizAPI.Middleware.APIKeyMiddleware>();
 
 app.Run();
