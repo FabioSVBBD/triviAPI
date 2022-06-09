@@ -1,19 +1,22 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using QuizAPI.Model;
 
 namespace QuizAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ValuesController : ControllerBase
+    public class QuizController : ControllerBase
     {
         TriviapiDBContext _context = new TriviapiDBContext();
 
-        [HttpGet(Name = "test")]
-        public IActionResult testMe()
+        [HttpGet(Name = "all")]
+        public IActionResult allQuestions([FromQuery] FilterQuery query)
         {
-            return new ObjectResult(_context.Questions.Find(1));
+            List<Question> questions = _context.Questions.Include("Difficulty").ToList();
+            
+            return new ObjectResult(query.filterAll(questions));
         }
     }
 }
