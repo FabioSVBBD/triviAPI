@@ -7,7 +7,7 @@ namespace QuizAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ValuesController : ControllerBase
+    public class QuizController : ControllerBase
     {
         TriviapiDBContext _context = new TriviapiDBContext();
         ValueToIdUtil _valueToIdUtil = new ValueToIdUtil();
@@ -24,17 +24,17 @@ namespace QuizAPI.Controllers
         {
             Question questionToChange = _context.Questions.Find(id);
 
-            if (!string.IsNullOrEmpty(questionPatches.Question1))
+            if (!string.IsNullOrWhiteSpace(questionPatches.Question1))
             {
                 questionToChange.Question1 = questionPatches.Question1;
             }
 
-            if (!string.IsNullOrEmpty(questionPatches.Answer))
+            if (!string.IsNullOrWhiteSpace(questionPatches.Answer))
             {
                 questionToChange.Answer = questionPatches.Answer;
             }
 
-            if (!string.IsNullOrEmpty(questionPatches.Difficulty.DifficultyName))
+            if (!string.IsNullOrWhiteSpace(questionPatches.Difficulty.DifficultyName))
             {
                 int difficultyForPatchId = _valueToIdUtil.getDifficulty(questionPatches.Difficulty.DifficultyName);
                 questionToChange.DifficultyId = questionToChange.Difficulty.DifficultyId = difficultyForPatchId;
@@ -43,7 +43,7 @@ namespace QuizAPI.Controllers
                 _context.SaveChanges();
             }
 
-            if (!string.IsNullOrEmpty(questionPatches.Category.CategoryName))
+            if (!string.IsNullOrWhiteSpace(questionPatches.Category.CategoryName))
             {
                 int categoryId = _valueToIdUtil.getCategory(questionPatches.Category.CategoryName);
                 questionToChange.CategoryId = questionToChange.Category.CategoryId = categoryId;
