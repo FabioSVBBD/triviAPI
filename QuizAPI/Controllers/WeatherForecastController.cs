@@ -18,10 +18,10 @@ namespace QuizAPI.Controllers
             _logger = logger;
         }
 
-        [HttpGet(Name = "test")]
-        public IActionResult testMe()
-        {
-					return new ObjectResult("hello world");
-        }
+     //   [HttpGet(Name = "test")]
+     //   public IActionResult testMe()
+     //   {
+					//return new ObjectResult("hello world");
+     //   }
     }
 }
