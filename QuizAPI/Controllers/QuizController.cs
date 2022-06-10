@@ -35,31 +35,31 @@ namespace QuizAPI.Controllers
 				return NotFound();
 			}
 
-			if (!string.IsNullOrWhiteSpace(questionPatches.Question))
+			if (!string.IsNullOrEmpty(questionPatches.Question))
 			{
 				questionToChange.Question1 = questionPatches.Question;
 			}
 
-			if (!string.IsNullOrWhiteSpace(questionPatches.Answer))
+			if (!string.IsNullOrEmpty(questionPatches.Answer))
 			{
 				questionToChange.Answer = questionPatches.Answer;
 			}
 
-			if (!string.IsNullOrWhiteSpace(questionPatches.Difficulty))
+			if (!string.IsNullOrEmpty(questionPatches.Difficulty))
 			{
 				int difficultyForPatchId = _valueToIdUtil.getDifficulty(questionPatches.Difficulty);
 				questionToChange.DifficultyId = questionToChange.Difficulty.DifficultyId = difficultyForPatchId;
 				questionToChange.Difficulty.DifficultyName = questionPatches.Difficulty;
 			}
 
-			if (!string.IsNullOrWhiteSpace(questionPatches.Category))
+			if (!string.IsNullOrEmpty(questionPatches.Category))
 			{
 				int categoryId = _valueToIdUtil.getCategory(questionPatches.Category);
 				questionToChange.CategoryId = questionToChange.Category.CategoryId = categoryId;
 				questionToChange.Category.CategoryName = questionPatches.Category;
 			}
 
-			if (!string.IsNullOrWhiteSpace(questionPatches.Status))
+			if (!string.IsNullOrEmpty(questionPatches.Status))
 			{
 				int statusId = _valueToIdUtil.getStatus(questionPatches.Status);
 				questionToChange.StatusId = questionToChange.Status.StatusId = statusId;
@@ -90,11 +90,11 @@ namespace QuizAPI.Controllers
 				return NotFound();
 			}
 
-			if (updatedQuestion.Question == null ||
-				updatedQuestion.Answer == null ||
-				updatedQuestion.Difficulty == null ||
-				updatedQuestion.Category == null ||
-				updatedQuestion.Status == null)
+			if (string.IsNullOrEmpty(updatedQuestion.Question)||
+				string.IsNullOrEmpty(updatedQuestion.Answer) ||
+				string.IsNullOrEmpty(updatedQuestion.Difficulty) ||
+				string.IsNullOrEmpty(updatedQuestion.Category) ||
+				string.IsNullOrEmpty(updatedQuestion.Status))
 			{
 				return BadRequest("You are missing some fields");
 			}
