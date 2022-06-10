@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using QuizAPI.Model;
 using QuizAPI.Utils;
+using QuizAPI.DTOs;
 
 namespace QuizAPI.Controllers
 {
@@ -15,18 +16,18 @@ namespace QuizAPI.Controllers
         [HttpGet(Name = "test")]
         public IActionResult testMe()
         {
-            return new ObjectResult(_context.Questions.Find(1));
+            return new ObjectResult(_context.Questions.Find(2));
         }
 
 
         [HttpPatch]
-        public Question updateQuestion(int id, [FromBody] Question questionPatches)
+        public Question updateQuestion(int id, [FromBody] QuestionDTO questionPatches)
         {
             Question questionToChange = _context.Questions.Find(id);
 
-            if (!string.IsNullOrWhiteSpace(questionPatches.Question1))
+            if (!string.IsNullOrWhiteSpace(questionPatches.Question))
             {
-                questionToChange.Question1 = questionPatches.Question1;
+                questionToChange.Question1 = questionPatches.Question;
             }
 
             if (!string.IsNullOrWhiteSpace(questionPatches.Answer))
@@ -34,27 +35,27 @@ namespace QuizAPI.Controllers
                 questionToChange.Answer = questionPatches.Answer;
             }
 
-            if (!string.IsNullOrWhiteSpace(questionPatches.Difficulty.DifficultyName))
+            if (!string.IsNullOrWhiteSpace(questionPatches.Difficulty))
             {
-                int difficultyForPatchId = _valueToIdUtil.getDifficulty(questionPatches.Difficulty.DifficultyName);
+                int difficultyForPatchId = _valueToIdUtil.getDifficulty(questionPatches.Difficulty);
                 questionToChange.DifficultyId = questionToChange.Difficulty.DifficultyId = difficultyForPatchId;
-                questionToChange.Difficulty.DifficultyName = questionPatches.Difficulty.DifficultyName;
+                questionToChange.Difficulty.DifficultyName = questionPatches.Difficulty;
                 _context.Questions.Update(questionToChange);
                 _context.SaveChanges();
             }
 
-            if (!string.IsNullOrWhiteSpace(questionPatches.Category.CategoryName))
+            if (!string.IsNullOrWhiteSpace(questionPatches.Category))
             {
-                int categoryId = _valueToIdUtil.getCategory(questionPatches.Category.CategoryName);
+                int categoryId = _valueToIdUtil.getCategory(questionPatches.Category);
                 questionToChange.CategoryId = questionToChange.Category.CategoryId = categoryId;
-                questionToChange.Category.CategoryName = questionPatches.Category.CategoryName;
+                questionToChange.Category.CategoryName = questionPatches.Category;
             }
 
-            if (!string.IsNullOrWhiteSpace(questionPatches.Status.StatusName))
+            if (!string.IsNullOrWhiteSpace(questionPatches.Status))
             {
-                int statusId = _valueToIdUtil.getStatus(questionPatches.Status.StatusName);
+                int statusId = _valueToIdUtil.getStatus(questionPatches.Status);
                 questionToChange.StatusId = questionToChange.Status.StatusId = statusId;
-                questionToChange.Status.StatusName = questionPatches.Status.StatusName;
+                questionToChange.Status.StatusName = questionPatches.Status;
             }
 
             try
