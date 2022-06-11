@@ -12,6 +12,11 @@ namespace QuizAPI.Controllers
 		TriviapiDBContext _context = new TriviapiDBContext();
 		ValueToIdUtil _valueToIdUtil = new ValueToIdUtil();
 
+		public bool questionExists(int id)
+		{
+			return _context.Questions.Find(id) != null;
+		}
+
 		[HttpGet("{id}")]
 		public IActionResult testMe(int id)
 		{
@@ -28,12 +33,12 @@ namespace QuizAPI.Controllers
 		[HttpPatch("{id}")]
 		public IActionResult updateQuestion(int id, [FromBody] QuestionDTO questionPatches)
 		{
-			Question? questionToChange = _context.Questions.Find(id);
-
-			if (questionToChange == null)
+			if (!questionExists(id))
 			{
 				return NotFound();
 			}
+
+			Question? questionToChange = _context.Questions.Find(id);
 
 			if (!string.IsNullOrEmpty(questionPatches.Question))
 			{
@@ -83,14 +88,14 @@ namespace QuizAPI.Controllers
 		[HttpPut("{id}")]
 		public IActionResult putQuestion(int id, [FromBody] QuestionDTO updatedQuestion)
 		{
-			Question? question = _context.Questions.Find(id);
-
-			if (question == null)
+			if (!questionExists(id))
 			{
 				return NotFound();
 			}
 
-			if (string.IsNullOrEmpty(updatedQuestion.Question)||
+			Question? question = _context.Questions.Find(id);
+
+			if (string.IsNullOrEmpty(updatedQuestion.Question) ||
 				string.IsNullOrEmpty(updatedQuestion.Answer) ||
 				string.IsNullOrEmpty(updatedQuestion.Difficulty) ||
 				string.IsNullOrEmpty(updatedQuestion.Category) ||
