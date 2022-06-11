@@ -7,11 +7,13 @@
 		private string? difficulty;
 		private string? category;
 		private string? status;
+		private string[] tags;
 
 		public string? Status { get => status; set => status = value; }
 		public string? Category { get => category; set => category = value; }
 		public string? Difficulty { get => difficulty; set => difficulty = value; }
 		public string? Answer { get => answer; set => answer = value; }
 		public string? Question { get => question; set => question = value; }
-	}
+        public string[] Tags { get => tags; set => tags = value; }
+    }
 }

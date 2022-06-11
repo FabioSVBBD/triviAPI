@@ -33,5 +33,13 @@ namespace QuizAPI.Utils
 					where s.StatusName.ToLower() == statusName.ToLower()
 					select s).ToList().FirstOrDefault();
 		}
+
+		public Tag? getTagObject(string tagName)
+        {
+			return (from t in _context.Tags
+					where t.TagName.ToLower() == tagName.ToLower()
+					select t).ToList().FirstOrDefault();
+		}
+
 	}
 }

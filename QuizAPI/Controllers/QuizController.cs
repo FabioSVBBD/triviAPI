@@ -5,25 +5,25 @@ using QuizAPI.DTOs;
 
 namespace QuizAPI.Controllers
 {
-	[Route("api/[controller]")]
-	[ApiController]
-	public class QuizController : ControllerBase
-	{
-		TriviapiDBContext _context = new TriviapiDBContext();
-		ValueToIdUtil _valueToIdUtil = new ValueToIdUtil();
+    [Route("api/[controller]")]
+    [ApiController]
+    public class QuizController : ControllerBase
+    {
+        TriviapiDBContext _context = new TriviapiDBContext();
+        ValueToIdUtil _valueToIdUtil = new ValueToIdUtil();
 
-		[HttpGet("{id}")]
-		public IActionResult testMe(int id)
-		{
-			Question? question = _context.Questions.Find(id);
+        [HttpGet("{id}")]
+        public IActionResult testMe(int id)
+        {
+            Question? question = _context.Questions.Find(id);
 
-			if (question == null)
-			{
-				return NotFound();
-			}
+            if (question == null)
+            {
+                return NotFound();
+            }
 
-			return Ok(question);
-		}
+            return Ok(question);
+        }
 
 
         [HttpPatch("{id}")]
@@ -62,115 +62,138 @@ namespace QuizAPI.Controllers
         }
 
         [HttpPatch("mainPatch/{id}")]
-		public IActionResult updateQuestion(int id, [FromBody] QuestionDTO questionPatches)
-		{
-			if (!_valueToIdUtil.questionExists(id))
-			{
-				return NotFound();
-			}
+        public IActionResult updateQuestion(int id, [FromBody] QuestionDTO questionPatches)
+        {
+            if (!_valueToIdUtil.questionExists(id))
+            {
+                return NotFound();
+            }
 
-			Question? questionToChange = _context.Questions.Find(id);
+            Question? questionToChange = _context.Questions.Find(id);
 
-			if (!string.IsNullOrEmpty(questionPatches.Question))
-			{
-				questionToChange.Question1 = questionPatches.Question;
-			}
+            if (!string.IsNullOrEmpty(questionPatches.Question))
+            {
+                questionToChange.Question1 = questionPatches.Question;
+            }
 
-			if (!string.IsNullOrEmpty(questionPatches.Answer))
-			{
-				questionToChange.Answer = questionPatches.Answer;
-			}
+            if (!string.IsNullOrEmpty(questionPatches.Answer))
+            {
+                questionToChange.Answer = questionPatches.Answer;
+            }
 
-			if (!string.IsNullOrEmpty(questionPatches.Difficulty))
-			{
-				Difficulty difficultyToAdd = _valueToIdUtil.getDifficultyObject(questionPatches.Difficulty);
-				if (difficultyToAdd == null)
-				{
-					string cats = String.Join(", ", _context.Difficulties.Select(cat => cat.DifficultyName)) + ".";
-					return BadRequest("Please pass in a valid difficulty name from the list provided: " + cats);
-				}
-				if(difficultyToAdd.DifficultyId != questionToChange.DifficultyId)
+            if (!string.IsNullOrEmpty(questionPatches.Difficulty))
+            {
+                Difficulty difficultyToAdd = _valueToIdUtil.getDifficultyObject(questionPatches.Difficulty);
+                if (difficultyToAdd == null)
                 {
-					questionToChange.Difficulty = difficultyToAdd;
-					questionToChange.DifficultyId = questionToChange.Difficulty.DifficultyId;
-				}
-			}
-
-			if (!string.IsNullOrEmpty(questionPatches.Category))
-			{
-				Category categoryToAdd = _valueToIdUtil.getCategoryObject(questionPatches.Category);
-				if(categoryToAdd == null)
-                {
-					string cats = String.Join(", ", _context.Categories.Select(cat => cat.CategoryName)) + ".";
-					return BadRequest("Please pass in a valid category name from the list provided: " + cats);
+                    string cats = String.Join(", ", _context.Difficulties.Select(cat => cat.DifficultyName)) + ".";
+                    return BadRequest("Please pass in a valid difficulty name from the list provided: " + cats);
                 }
-				if (categoryToAdd.CategoryId != questionToChange.CategoryId)
+                if (difficultyToAdd.DifficultyId != questionToChange.DifficultyId)
                 {
-					questionToChange.Category = categoryToAdd;
-					questionToChange.CategoryId = questionToChange.Category.CategoryId;
-				}
+                    questionToChange.Difficulty = difficultyToAdd;
+                    questionToChange.DifficultyId = questionToChange.Difficulty.DifficultyId;
+                }
+            }
 
-			}
+            if (!string.IsNullOrEmpty(questionPatches.Category))
+            {
+                Category categoryToAdd = _valueToIdUtil.getCategoryObject(questionPatches.Category);
+                if (categoryToAdd == null)
+                {
+                    string cats = String.Join(", ", _context.Categories.Select(cat => cat.CategoryName)) + ".";
+                    return BadRequest("Please pass in a valid category name from the list provided: " + cats);
+                }
+                if (categoryToAdd.CategoryId != questionToChange.CategoryId)
+                {
+                    questionToChange.Category = categoryToAdd;
+                    questionToChange.CategoryId = questionToChange.Category.CategoryId;
+                }
 
-			try
-			{
-				_context.Questions.Update(questionToChange);
-				_context.SaveChanges();
+            }
 
-				return Ok(_context.Questions.Find(id));
-			}
-			catch (Exception e)
-			{
-				_ = e;
-				Console.WriteLine(e.Message);
-				return BadRequest("Invalid Values");
-			}
-		}
+            if (questionPatches.Tags.Length > 0)
+            {
+                QuestionTag tagsToAdd = new();
+                tagsToAdd.QuestionId = id;
+                tagsToAdd.Question = questionToChange;
 
-		[HttpPut("{id}")]
-		public IActionResult putQuestion(int id, [FromBody] QuestionDTO updatedQuestion)
-		{
-			if (!_valueToIdUtil.questionExists(id))
-			{
-				return NotFound();
-			}
+                foreach (string tag in questionPatches.Tags)
+                {
+                    Tag tagObject = _valueToIdUtil.getTagObject(tag);
+                    if (tagObject == null)
+                    {
+                        return BadRequest();
 
-			Question? question = _context.Questions.Find(id);
+                    }
+                    if (_context.QuestionTags.Select(s => s.QuestionId == id && s.TagId == tagObject.TagId) != null)
+                    {
+                        tagsToAdd.TagId = tagObject.TagId;
+                        tagsToAdd.Tag = tagObject;
+                    }
 
-			if (string.IsNullOrEmpty(updatedQuestion.Question) ||
-				string.IsNullOrEmpty(updatedQuestion.Answer) ||
-				string.IsNullOrEmpty(updatedQuestion.Difficulty) ||
-				string.IsNullOrEmpty(updatedQuestion.Category) ||
-				string.IsNullOrEmpty(updatedQuestion.Status))
-			{
-				return BadRequest("You are missing some fields");
-			}
+                };
 
-			question.Question1 = updatedQuestion.Question;
-			question.Answer = updatedQuestion.Answer;
 
-			question.Difficulty = _valueToIdUtil.getDifficultyObject(updatedQuestion.Difficulty);
-			question.DifficultyId = question.Difficulty.DifficultyId;
+                try
+                {
+                    _context.Questions.Update(questionToChange);
+                    _context.SaveChanges();
 
-			question.Category = _valueToIdUtil.getCategoryObject(updatedQuestion.Category);
-			question.CategoryId = question.Category.CategoryId;
+                    return Ok(_context.Questions.Find(id));
+                }
+                catch (Exception e)
+                {
+                    _ = e;
+                    Console.WriteLine(e.Message);
+                    return BadRequest("Invalid Values");
+                }
+            }
 
-			question.Status = _valueToIdUtil.getStatusByObject(updatedQuestion.Status);
-			question.StatusId = question.Status.StatusId;
+            [HttpPut("{id}")]
+            public IActionResult putQuestion(int id, [FromBody] QuestionDTO updatedQuestion)
+            {
+                if (!_valueToIdUtil.questionExists(id))
+                {
+                    return NotFound();
+                }
 
-			try
-			{
-				_context.Questions.Update(question);
-				_context.SaveChanges();
+                Question? question = _context.Questions.Find(id);
 
-				return Ok(_context.Questions.Find(id));
-			}
-			catch (Exception e)
-			{
-				_ = e;
-				Console.WriteLine(e.ToString());
-				return BadRequest("Failed To Connect to Database");
-			}
-		}
-	}
-}
+                if (string.IsNullOrEmpty(updatedQuestion.Question) ||
+                    string.IsNullOrEmpty(updatedQuestion.Answer) ||
+                    string.IsNullOrEmpty(updatedQuestion.Difficulty) ||
+                    string.IsNullOrEmpty(updatedQuestion.Category) ||
+                    string.IsNullOrEmpty(updatedQuestion.Status))
+                {
+                    return BadRequest("You are missing some fields");
+                }
+
+                question.Question1 = updatedQuestion.Question;
+                question.Answer = updatedQuestion.Answer;
+
+                question.Difficulty = _valueToIdUtil.getDifficultyObject(updatedQuestion.Difficulty);
+                question.DifficultyId = question.Difficulty.DifficultyId;
+
+                question.Category = _valueToIdUtil.getCategoryObject(updatedQuestion.Category);
+                question.CategoryId = question.Category.CategoryId;
+
+                question.Status = _valueToIdUtil.getStatusByObject(updatedQuestion.Status);
+                question.StatusId = question.Status.StatusId;
+
+                try
+                {
+                    _context.Questions.Update(question);
+                    _context.SaveChanges();
+
+                    return Ok(_context.Questions.Find(id));
+                }
+                catch (Exception e)
+                {
+                    _ = e;
+                    Console.WriteLine(e.ToString());
+                    return BadRequest("Failed To Connect to Database");
+                }
+            }
+        }
+    }
