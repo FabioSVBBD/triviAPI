@@ -25,7 +25,43 @@ namespace QuizAPI.Controllers
 			return Ok(question);
 		}
 
-		[HttpPatch("{id}")]
+
+        [HttpPatch("{id}")]
+        public IActionResult updateStatus(int id, [FromBody] QuestionDTO questionForStatusUpdate)
+        {
+            Question? questionToChange = _context.Questions.Find(id);
+            if (!string.IsNullOrEmpty(questionForStatusUpdate.Status))
+            {
+                Status statusToAdd = _valueToIdUtil.getStatusByObject(questionForStatusUpdate.Status);
+                if (statusToAdd == null)
+                {
+                    string cats = String.Join(", ", _context.Statuses.Select(cat => cat.StatusName)) + ".";
+                    return BadRequest("Please pass in a valid status name from the list provided: " + cats);
+                }
+                if (statusToAdd.StatusId != questionToChange.StatusId)
+                {
+                    questionToChange.Status = statusToAdd;
+                    questionToChange.StatusId = questionToChange.Status.StatusId;
+                }
+
+            }
+
+            try
+            {
+                _context.Questions.Update(questionToChange);
+                _context.SaveChanges();
+
+                return Ok(_context.Questions.Find(id));
+            }
+            catch (Exception e)
+            {
+                _ = e;
+                Console.WriteLine(e.Message);
+                return BadRequest("Invalid Values");
+            }
+        }
+
+        [HttpPatch("mainPatch/{id}")]
 		public IActionResult updateQuestion(int id, [FromBody] QuestionDTO questionPatches)
 		{
 			if (!_valueToIdUtil.questionExists(id))
@@ -47,20 +83,33 @@ namespace QuizAPI.Controllers
 
 			if (!string.IsNullOrEmpty(questionPatches.Difficulty))
 			{
-				questionToChange.Difficulty = _valueToIdUtil.getDifficultyObject(questionPatches.Difficulty);
-				questionToChange.DifficultyId = questionToChange.Difficulty.DifficultyId;
+				Difficulty difficultyToAdd = _valueToIdUtil.getDifficultyObject(questionPatches.Difficulty);
+				if (difficultyToAdd == null)
+				{
+					string cats = String.Join(", ", _context.Difficulties.Select(cat => cat.DifficultyName)) + ".";
+					return BadRequest("Please pass in a valid difficulty name from the list provided: " + cats);
+				}
+				if(difficultyToAdd.DifficultyId != questionToChange.DifficultyId)
+                {
+					questionToChange.Difficulty = difficultyToAdd;
+					questionToChange.DifficultyId = questionToChange.Difficulty.DifficultyId;
+				}
 			}
 
 			if (!string.IsNullOrEmpty(questionPatches.Category))
 			{
-				questionToChange.Category = _valueToIdUtil.getCategoryObject(questionPatches.Category);
-				questionToChange.CategoryId = questionToChange.Category.CategoryId;
-			}
+				Category categoryToAdd = _valueToIdUtil.getCategoryObject(questionPatches.Category);
+				if(categoryToAdd == null)
+                {
+					string cats = String.Join(", ", _context.Categories.Select(cat => cat.CategoryName)) + ".";
+					return BadRequest("Please pass in a valid category name from the list provided: " + cats);
+                }
+				if (categoryToAdd.CategoryId != questionToChange.CategoryId)
+                {
+					questionToChange.Category = categoryToAdd;
+					questionToChange.CategoryId = questionToChange.Category.CategoryId;
+				}
 
-			if (!string.IsNullOrEmpty(questionPatches.Status))
-			{
-				questionToChange.Status = _valueToIdUtil.getStatusByObject(questionPatches.Status);
-				questionToChange.StatusId = questionToChange.Status.StatusId;
 			}
 
 			try
@@ -73,6 +122,7 @@ namespace QuizAPI.Controllers
 			catch (Exception e)
 			{
 				_ = e;
+				Console.WriteLine(e.Message);
 				return BadRequest("Invalid Values");
 			}
 		}
@@ -118,6 +168,7 @@ namespace QuizAPI.Controllers
 			catch (Exception e)
 			{
 				_ = e;
+				Console.WriteLine(e.ToString());
 				return BadRequest("Failed To Connect to Database");
 			}
 		}

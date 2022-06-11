@@ -12,52 +12,26 @@ namespace QuizAPI.Utils
 			return _context.Questions.Find(id) != null;
 		}
 
-		public int getDifficulty(string difficultyName)
-		{
-			Difficulty? difficultyToGet = (from d in _context.Difficulties
-																		 where d.DifficultyName == difficultyName
-																		 select d).ToList().FirstOrDefault();
-
-			return difficultyToGet == null ? -1 : difficultyToGet.DifficultyId;
-		}
-
 		public Difficulty? getDifficultyObject(string difficultyName)
 		{
 			return (from d in _context.Difficulties
-							where d.DifficultyName == difficultyName
-							select d).ToList().FirstOrDefault();
-		}
-
-		public int getCategory(string categoryName)
-		{
-			Category? categoryToGet = (from c in _context.Categories
-																 where c.CategoryName == categoryName
-																 select c).ToList().FirstOrDefault();
-
-			return categoryToGet == null ? -1 : categoryToGet.CategoryId;
+					where d.DifficultyName.ToLower() == difficultyName.ToLower()
+					select d).ToList().FirstOrDefault();
 		}
 
 		public Category? getCategoryObject(string categoryName)
 		{
 			return (from c in _context.Categories
-							where c.CategoryName == categoryName
-							select c).ToList().FirstOrDefault();
+					where c.CategoryName.ToLower() == categoryName.ToLower()
+					select c).ToList().FirstOrDefault();
 		}
 
-		public int getStatus(string statusName)
-		{
-			Status? statusToGet = (from s in _context.Statuses
-														 where s.StatusName == statusName
-														 select s).ToList().FirstOrDefault();
-
-			return statusToGet == null ? -1 : statusToGet.StatusId;
-		}
 
 		public Status? getStatusByObject(string statusName)
 		{
 			return (from s in _context.Statuses
-							where s.StatusName == statusName
-							select s).ToList().FirstOrDefault();
+					where s.StatusName.ToLower() == statusName.ToLower()
+					select s).ToList().FirstOrDefault();
 		}
 	}
 }
