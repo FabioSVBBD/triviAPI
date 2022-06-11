@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 
 namespace QuizAPI.Model
 {
@@ -11,7 +10,6 @@ namespace QuizAPI.Model
             Questions = new HashSet<Question>();
         }
 
-        [Key]
         public int DifficultyId { get; set; }
         public string DifficultyName { get; set; } = null!;
 

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace QuizAPI.Model
 {
@@ -14,17 +13,16 @@ namespace QuizAPI.Model
         public int QuestionId { get; set; }
         public string Question1 { get; set; } = null!;
         public string Answer { get; set; } = null!;
-        public int CategoryId { get; set; }
-        public int DifficultyId { get; set; }
-        public int StatusId { get; set; }
 
-        [ForeignKey("CategoryId")]
+        public int CategoryId { get; set; }
         public virtual Category Category { get; set; } = null!;
 
-        [ForeignKey("DifficultyId")]
+
+        public virtual int DifficultyId { get; set; }
         public virtual Difficulty Difficulty { get; set; } = null!;
 
-        [ForeignKey("StatusId")]
+     
+        public virtual int StatusId { get; set; }
         public virtual Status Status { get; set; } = null!;
         public virtual ICollection<QuestionTag> QuestionTags { get; set; }
     }

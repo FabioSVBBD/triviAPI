@@ -268,9 +268,9 @@ namespace QuizAPI.Controllers
 		}
 
 
-		[HttpPost]
-		public IActionResult insertQuestion([FromBody] QuestionDTO newQuestionDetails)
-		{
+        [HttpPost]
+        public IActionResult insertQuestion([FromBody] QuestionDTO newQuestionDetails)
+        {
 
 
 			if (string.IsNullOrEmpty(newQuestionDetails.Question) ||
@@ -284,10 +284,9 @@ namespace QuizAPI.Controllers
 				return BadRequest("You are missing some fields");
 			}
 
-			//Make new question object
-			var newQuestion = new Question();
-			newQuestion.Question1 = newQuestionDetails.Question;
-			newQuestion.Answer = newQuestionDetails.Answer;
+            var newQuestion = new Question();
+            newQuestion.Question1 = newQuestionDetails.Question;
+            newQuestion.Answer = newQuestionDetails.Answer;
 
 
 			var category = _valueToIdUtil.getCategoryObject(newQuestionDetails.Category);
