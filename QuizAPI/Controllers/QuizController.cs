@@ -25,6 +25,17 @@ namespace QuizAPI.Controllers
 			return Ok(_context.Questions.Find(id));
 		}
 
+		[HttpGet]
+		public IActionResult getAllQuestions()
+		{
+			var questions = _context.Questions.ToList();  
+
+
+			return Ok(questions);
+		}
+
+
+
 		[HttpPatch("{id}")]
 		public IActionResult updateQuestion(int id, [FromBody] QuestionDTO questionPatches)
 		{
@@ -133,5 +144,61 @@ namespace QuizAPI.Controllers
 				return BadRequest("Failed To Connect to Database");
 			}
 		}
+
+
+		[HttpPost]
+		public IActionResult insertQuestion([FromBody] QuestionDTO newQuestionDetails)
+		{
+
+
+			if (string.IsNullOrEmpty(newQuestionDetails.Question) ||
+				string.IsNullOrEmpty(newQuestionDetails.Answer) ||
+				string.IsNullOrEmpty(newQuestionDetails.Difficulty) ||
+				string.IsNullOrEmpty(newQuestionDetails.Category) ||
+				string.IsNullOrEmpty(newQuestionDetails.Status))
+			{
+				return BadRequest("You are missing some fields");
+			}
+
+			//Make new question object
+			var newQuestion = new Question();
+			newQuestion.Question1 = newQuestionDetails.Question;
+			newQuestion.Answer = newQuestionDetails.Answer;
+
+			int difficultyID = _valueToIdUtil.getDifficulty(newQuestionDetails.Difficulty); // name of difficulty
+			newQuestion.Difficulty = new Difficulty();
+			newQuestion.DifficultyId = newQuestion.Difficulty.DifficultyId = difficultyID;
+			newQuestion.Difficulty.DifficultyName = newQuestionDetails.Difficulty;
+
+			int categoryId = _valueToIdUtil.getCategory(newQuestionDetails.Category);
+			newQuestion.Category = new Category();
+			newQuestion.CategoryId  = categoryId;
+			newQuestion.Category.CategoryName = newQuestionDetails.Category;
+
+			int statusId = _valueToIdUtil.getStatus(newQuestionDetails.Status);
+			newQuestion.Status = new Status();
+			newQuestion.StatusId = newQuestion.Status.StatusId = statusId;
+			newQuestion.Status.StatusName = newQuestionDetails.Status; 
+
+
+
+			try
+			{
+				_context.Questions.Add(newQuestion);
+				_context.SaveChangesAsync();
+
+				return Accepted(newQuestion);
+			}
+			catch (Exception e)
+			{
+				_ = e;
+				return BadRequest("Failed To Connect to Database");
+			}
+
+
+		}
+
+
+
 	}
 }
