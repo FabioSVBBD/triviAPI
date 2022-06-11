@@ -2,6 +2,7 @@
 using QuizAPI.Model;
 using QuizAPI.Utils;
 using QuizAPI.DTOs;
+using System.Text.Json;
 
 namespace QuizAPI.Controllers
 {
@@ -165,34 +166,36 @@ namespace QuizAPI.Controllers
 			newQuestion.Question1 = newQuestionDetails.Question;
 			newQuestion.Answer = newQuestionDetails.Answer;
 
-			int difficultyID = _valueToIdUtil.getDifficulty(newQuestionDetails.Difficulty); // name of difficulty
-			newQuestion.Difficulty = new Difficulty();
-			newQuestion.DifficultyId = newQuestion.Difficulty.DifficultyId = difficultyID;
-			newQuestion.Difficulty.DifficultyName = newQuestionDetails.Difficulty;
 
-			int categoryId = _valueToIdUtil.getCategory(newQuestionDetails.Category);
-			newQuestion.Category = new Category();
-			newQuestion.CategoryId  = categoryId;
-			newQuestion.Category.CategoryName = newQuestionDetails.Category;
-
-			int statusId = _valueToIdUtil.getStatus(newQuestionDetails.Status);
-			newQuestion.Status = new Status();
-			newQuestion.StatusId = newQuestion.Status.StatusId = statusId;
-			newQuestion.Status.StatusName = newQuestionDetails.Status; 
+			var category = _valueToIdUtil.getCategoryObject(newQuestionDetails.Category);
+			newQuestion.Category = category;
+			newQuestion.CategoryId = category.CategoryId;
 
 
+			var difficulty = _valueToIdUtil.getDifficultyObject(newQuestionDetails.Difficulty);
+			newQuestion.Difficulty = difficulty;
+			newQuestion.DifficultyId = difficulty.DifficultyId;
 
+			var status = _valueToIdUtil.getStatusObject(newQuestionDetails.Status);
+			newQuestion.Status = status;
+			newQuestion.StatusId = status.StatusId;
+
+
+
+
+			Console.WriteLine(JsonSerializer.Serialize(newQuestion));
 			try
 			{
 				_context.Questions.Add(newQuestion);
-				_context.SaveChangesAsync();
+				_context.SaveChanges();
 
-				return Accepted(newQuestion);
+				return Accepted( QuestionDTO.AsDTO(newQuestion));
 			}
 			catch (Exception e)
 			{
 				_ = e;
-				return BadRequest("Failed To Connect to Database");
+				Console.WriteLine(e);
+				return BadRequest("Failed To Connect to Database"); ;
 			}
 
 
