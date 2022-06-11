@@ -56,5 +56,13 @@ namespace QuizAPI.Utils
 				{ "values", _context.Statuses.ToList().Select(s => s.StatusName).ToList() }
 			};
 		}
+
+		public Dictionary<String, List<String>> getInvalidTagResponse()
+		{
+			return new() {
+				{ "message", new List<string>() { "Invalid Tag" } },
+				{ "values", _context.Tags.ToList().Select(t => t.TagName).ToList() }
+			};
+		}
 	}
 }
