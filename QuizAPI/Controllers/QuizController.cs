@@ -12,11 +12,6 @@ namespace QuizAPI.Controllers
 		TriviapiDBContext _context = new TriviapiDBContext();
 		ValueToIdUtil _valueToIdUtil = new ValueToIdUtil();
 
-		public bool questionExists(int id)
-		{
-			return _context.Questions.Find(id) != null;
-		}
-
 		[HttpGet("{id}")]
 		public IActionResult testMe(int id)
 		{
@@ -27,13 +22,13 @@ namespace QuizAPI.Controllers
 				return NotFound();
 			}
 
-			return Ok(_context.Questions.Find(id));
+			return Ok(question);
 		}
 
 		[HttpPatch("{id}")]
 		public IActionResult updateQuestion(int id, [FromBody] QuestionDTO questionPatches)
 		{
-			if (!questionExists(id))
+			if (!_valueToIdUtil.questionExists(id))
 			{
 				return NotFound();
 			}
@@ -52,23 +47,20 @@ namespace QuizAPI.Controllers
 
 			if (!string.IsNullOrEmpty(questionPatches.Difficulty))
 			{
-				int difficultyForPatchId = _valueToIdUtil.getDifficulty(questionPatches.Difficulty);
-				questionToChange.DifficultyId = questionToChange.Difficulty.DifficultyId = difficultyForPatchId;
-				questionToChange.Difficulty.DifficultyName = questionPatches.Difficulty;
+				questionToChange.Difficulty = _valueToIdUtil.getDifficultyObject(questionPatches.Difficulty);
+				questionToChange.DifficultyId = questionToChange.Difficulty.DifficultyId;
 			}
 
 			if (!string.IsNullOrEmpty(questionPatches.Category))
 			{
-				int categoryId = _valueToIdUtil.getCategory(questionPatches.Category);
-				questionToChange.CategoryId = questionToChange.Category.CategoryId = categoryId;
-				questionToChange.Category.CategoryName = questionPatches.Category;
+				questionToChange.Category = _valueToIdUtil.getCategoryObject(questionPatches.Category);
+				questionToChange.CategoryId = questionToChange.Category.CategoryId;
 			}
 
 			if (!string.IsNullOrEmpty(questionPatches.Status))
 			{
-				int statusId = _valueToIdUtil.getStatus(questionPatches.Status);
-				questionToChange.StatusId = questionToChange.Status.StatusId = statusId;
-				questionToChange.Status.StatusName = questionPatches.Status;
+				questionToChange.Status = _valueToIdUtil.getStatusByObject(questionPatches.Status);
+				questionToChange.StatusId = questionToChange.Status.StatusId;
 			}
 
 			try
@@ -88,7 +80,7 @@ namespace QuizAPI.Controllers
 		[HttpPut("{id}")]
 		public IActionResult putQuestion(int id, [FromBody] QuestionDTO updatedQuestion)
 		{
-			if (!questionExists(id))
+			if (!_valueToIdUtil.questionExists(id))
 			{
 				return NotFound();
 			}
@@ -107,23 +99,14 @@ namespace QuizAPI.Controllers
 			question.Question1 = updatedQuestion.Question;
 			question.Answer = updatedQuestion.Answer;
 
-			int difficultyID = _valueToIdUtil.getDifficulty(updatedQuestion.Difficulty);
-			question.Difficulty = new Difficulty();
+			question.Difficulty = _valueToIdUtil.getDifficultyObject(updatedQuestion.Difficulty);
+			question.DifficultyId = question.Difficulty.DifficultyId;
 
-			question.DifficultyId = question.Difficulty.DifficultyId = difficultyID;
-			question.Difficulty.DifficultyName = updatedQuestion.Difficulty;
+			question.Category = _valueToIdUtil.getCategoryObject(updatedQuestion.Category);
+			question.CategoryId = question.Category.CategoryId;
 
-			int categoryId = _valueToIdUtil.getCategory(updatedQuestion.Category);
-			question.Category = new Category();
-
-			question.CategoryId = question.Category.CategoryId = categoryId;
-			question.Category.CategoryName = updatedQuestion.Category;
-
-			int statusId = _valueToIdUtil.getStatus(updatedQuestion.Status);
-			question.Status = new Status();
-
-			question.StatusId = question.Status.StatusId = statusId;
-			question.Status.StatusName = updatedQuestion.Status;
+			question.Status = _valueToIdUtil.getStatusByObject(updatedQuestion.Status);
+			question.StatusId = question.Status.StatusId;
 
 			try
 			{
