@@ -4,6 +4,7 @@ namespace QuizAPI.DTOs
 {
 	public class QuestionDTO
 	{
+
 		private string? question;
 		private string? answer;
 		private string? difficulty;
@@ -19,6 +20,15 @@ namespace QuizAPI.DTOs
 			this.difficulty = difficulty;
 			this.category = category;
 			this.tags = tags; 
+		}
+
+		public QuestionDTO(String question, String answer, String status, String difficulty, String category)
+		{
+			this.question = question;
+			this.answer = answer;
+			this.status = status;
+			this.difficulty = difficulty;
+			this.category = category;
 		}
 
 		public string? Status { get => status; set => status = value; }

@@ -71,5 +71,14 @@ namespace QuizAPI.Utils
 				{ "values", _context.Tags.ToList().Select(t => t.TagName).ToList() }
 			};
 		}
+
+		public Status getStatusObject(string statusName)
+		{
+			Status? statusToGet = (from s in _context.Statuses
+								   where s.StatusName == statusName
+								   select s).ToList().FirstOrDefault();
+
+			return statusToGet;
+		}
 	}
 }

@@ -2,6 +2,7 @@
 using QuizAPI.Model;
 using QuizAPI.Utils;
 using QuizAPI.DTOs;
+using System.Text.Json;
 
 namespace QuizAPI.Controllers
 {
@@ -317,6 +318,8 @@ namespace QuizAPI.Controllers
 			newQuestion.StatusId = status.StatusId;
 
 
+
+			Console.WriteLine(JsonSerializer.Serialize(newQuestion));
 			try
 			{
 				_context.Questions.Update(newQuestion);
@@ -356,7 +359,8 @@ namespace QuizAPI.Controllers
 			catch (Exception e)
 			{
 				_ = e;
-				return BadRequest("Failed To Connect to Database");
+				Console.WriteLine(e);
+				return BadRequest("Failed To Connect to Database"); ;
 			}
 
 
