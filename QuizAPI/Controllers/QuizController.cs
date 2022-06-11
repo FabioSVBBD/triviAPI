@@ -25,6 +25,16 @@ namespace QuizAPI.Controllers
 			return Ok(question);
 		}
 
+		[HttpGet]
+		public IActionResult getAllQuestions()
+		{
+			var questions = _context.Questions.ToList();  
+
+
+			return Ok(questions);
+		}
+
+
 
 		[HttpPatch("{id}")]
 		public IActionResult updateStatus(int id, [FromBody] QuestionDTO questionForStatusUpdate)
@@ -273,6 +283,7 @@ namespace QuizAPI.Controllers
 				return BadRequest("You are missing some fields");
 			}
 
+			//Make new question object
 			var newQuestion = new Question();
 			newQuestion.Question1 = newQuestionDetails.Question;
 			newQuestion.Answer = newQuestionDetails.Answer;
@@ -345,12 +356,12 @@ namespace QuizAPI.Controllers
 			catch (Exception e)
 			{
 				_ = e;
-				Console.WriteLine(e);
-				return BadRequest("Failed To Connect to Database"); ;
+				return BadRequest("Failed To Connect to Database");
 			}
 
 
 		}
+
 
 
 	}
