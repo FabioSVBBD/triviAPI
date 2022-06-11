@@ -12,29 +12,11 @@ namespace QuizAPI.Utils
 			return _context.Questions.Find(id) != null;
 		}
 
-		public int getDifficulty(string difficultyName)
-		{
-			Difficulty? difficultyToGet = (from d in _context.Difficulties
-																		 where d.DifficultyName == difficultyName
-																		 select d).ToList().FirstOrDefault();
-
-			return difficultyToGet == null ? -1 : difficultyToGet.DifficultyId;
-		}
-
 		public Difficulty? getDifficultyObject(string difficultyName)
 		{
 			return (from d in _context.Difficulties
 							where d.DifficultyName == difficultyName
 							select d).ToList().FirstOrDefault();
-		}
-
-		public int getCategory(string categoryName)
-		{
-			Category? categoryToGet = (from c in _context.Categories
-																 where c.CategoryName == categoryName
-																 select c).ToList().FirstOrDefault();
-
-			return categoryToGet == null ? -1 : categoryToGet.CategoryId;
 		}
 
 		public Category? getCategoryObject(string categoryName)
@@ -44,20 +26,35 @@ namespace QuizAPI.Utils
 							select c).ToList().FirstOrDefault();
 		}
 
-		public int getStatus(string statusName)
-		{
-			Status? statusToGet = (from s in _context.Statuses
-														 where s.StatusName == statusName
-														 select s).ToList().FirstOrDefault();
-
-			return statusToGet == null ? -1 : statusToGet.StatusId;
-		}
-
 		public Status? getStatusByObject(string statusName)
 		{
 			return (from s in _context.Statuses
 							where s.StatusName == statusName
 							select s).ToList().FirstOrDefault();
+		}
+
+		public Dictionary<String, List<String>> getInvalidDifficultyResponse()
+		{
+			return new() {
+				{ "message", new List<string>() { "Invalid Difficulty" } },
+				{ "values", _context.Difficulties.ToList().Select(d => d.DifficultyName).ToList() }
+			};
+		}
+
+		public Dictionary<String, List<String>> getInvalidCategoryResponse()
+		{
+			return new() {
+				{ "message", new List<string>() { "Invalid Category" } },
+				{ "values", _context.Categories.ToList().Select(c => c.CategoryName).ToList() }
+			};
+		}
+
+		public Dictionary<String, List<String>> getInvalidStatusResponse()
+		{
+			return new() {
+				{ "message", new List<string>() { "Invalid Status" } },
+				{ "values", _context.Statuses.ToList().Select(s => s.StatusName).ToList() }
+			};
 		}
 	}
 }

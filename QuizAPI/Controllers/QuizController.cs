@@ -99,14 +99,44 @@ namespace QuizAPI.Controllers
 			question.Question1 = updatedQuestion.Question;
 			question.Answer = updatedQuestion.Answer;
 
-			question.Difficulty = _valueToIdUtil.getDifficultyObject(updatedQuestion.Difficulty);
-			question.DifficultyId = question.Difficulty.DifficultyId;
+			if (question.Difficulty.DifficultyName != updatedQuestion.Difficulty)
+			{
+				Difficulty? fetchedDifficulty = _valueToIdUtil.getDifficultyObject(updatedQuestion.Difficulty);
 
-			question.Category = _valueToIdUtil.getCategoryObject(updatedQuestion.Category);
-			question.CategoryId = question.Category.CategoryId;
+				if (fetchedDifficulty == null)
+				{
+					return BadRequest(_valueToIdUtil.getInvalidDifficultyResponse());
+				}
 
-			question.Status = _valueToIdUtil.getStatusByObject(updatedQuestion.Status);
-			question.StatusId = question.Status.StatusId;
+				question.Difficulty = fetchedDifficulty;
+				question.DifficultyId = question.Difficulty.DifficultyId;
+			}
+
+			if (question.Category.CategoryName != updatedQuestion.Category)
+			{
+				Category? fetchedCategory = _valueToIdUtil.getCategoryObject(updatedQuestion.Category);
+
+				if (fetchedCategory == null)
+				{
+					return BadRequest(_valueToIdUtil.getInvalidCategoryResponse());
+				}
+
+				question.Category = fetchedCategory;
+				question.CategoryId = question.Category.CategoryId;
+			}
+
+			if (question.Status.StatusName != updatedQuestion.Status)
+			{
+				Status? fetchedStatus = _valueToIdUtil.getStatusByObject(updatedQuestion.Status);
+
+				if (fetchedStatus == null)
+				{
+					return BadRequest(_valueToIdUtil.getInvalidStatusResponse());
+				}
+
+				question.Status = fetchedStatus;
+				question.StatusId = question.Status.StatusId;
+			}
 
 			try
 			{
