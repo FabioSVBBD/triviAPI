@@ -147,61 +147,70 @@ namespace QuizAPI.Controllers
 		}
 
 
-		[HttpPost]
-		public IActionResult insertQuestion([FromBody] QuestionDTO newQuestionDetails)
-		{
+        [HttpPost]
+        public IActionResult insertQuestion([FromBody] QuestionDTO newQuestionDetails)
+        {
 
 
-			if (string.IsNullOrEmpty(newQuestionDetails.Question) ||
-				string.IsNullOrEmpty(newQuestionDetails.Answer) ||
-				string.IsNullOrEmpty(newQuestionDetails.Difficulty) ||
-				string.IsNullOrEmpty(newQuestionDetails.Category) ||
-				string.IsNullOrEmpty(newQuestionDetails.Status))
-			{
-				return BadRequest("You are missing some fields");
-			}
+            if (string.IsNullOrEmpty(newQuestionDetails.Question) ||
+                string.IsNullOrEmpty(newQuestionDetails.Answer) ||
+                string.IsNullOrEmpty(newQuestionDetails.Difficulty) ||
+                string.IsNullOrEmpty(newQuestionDetails.Category) ||
+                string.IsNullOrEmpty(newQuestionDetails.Status))
+            {
+                return BadRequest("You are missing some fields");
+            }
 
-			//Make new question object
-			var newQuestion = new Question();
-			newQuestion.Question1 = newQuestionDetails.Question;
-			newQuestion.Answer = newQuestionDetails.Answer;
-
-
-			var category = _valueToIdUtil.getCategoryObject(newQuestionDetails.Category);
-			newQuestion.Category = category;
-			newQuestion.CategoryId = category.CategoryId;
+            var newQuestion = new Question();
+            newQuestion.Question1 = newQuestionDetails.Question;
+            newQuestion.Answer = newQuestionDetails.Answer;
 
 
-			var difficulty = _valueToIdUtil.getDifficultyObject(newQuestionDetails.Difficulty);
-			newQuestion.Difficulty = difficulty;
-			newQuestion.DifficultyId = difficulty.DifficultyId;
+            var category = _valueToIdUtil.getCategoryObject(newQuestionDetails.Category);
+            if (category == null)
+            {
+                return BadRequest("Category does not exist");
+            }
 
-			var status = _valueToIdUtil.getStatusObject(newQuestionDetails.Status);
-			newQuestion.Status = status;
-			newQuestion.StatusId = status.StatusId;
-
-
-
-
-			Console.WriteLine(JsonSerializer.Serialize(newQuestion));
-			try
-			{
-				_context.Questions.Add(newQuestion);
-				_context.SaveChanges();
-
-				return Accepted( QuestionDTO.AsDTO(newQuestion));
-			}
-			catch (Exception e)
-			{
-				_ = e;
-				Console.WriteLine(e);
-				return BadRequest("Failed To Connect to Database"); ;
-			}
+            newQuestion.Category = category;
+            newQuestion.CategoryId = category.CategoryId;
 
 
-		}
+            var difficulty = _valueToIdUtil.getDifficultyObject(newQuestionDetails.Difficulty);
+            if (difficulty == null)
+            {
+                return BadRequest("Difficulty does not exist");
+            }
+            newQuestion.Difficulty = difficulty;
+            newQuestion.DifficultyId = difficulty.DifficultyId;
+
+
+            var status = _valueToIdUtil.getStatusObject(newQuestionDetails.Status);
+            if (status == null)
+            {
+                return BadRequest("Status does not exist");
+            }
+            newQuestion.Status = status;
+            newQuestion.StatusId = status.StatusId;
+
+            try
+            {
+                _context.Questions.Update(newQuestion);
+                _context.SaveChanges();
+
+                return Ok(QuestionDTO.AsDTO(newQuestion));
+            }
+            catch (Exception e)
+            {
+                _ = e;
+                return BadRequest("Failed To Connect to Database"); ;
+            }
+
+
+        }
 
 
 
-	}
+
+    }
 }
