@@ -99,6 +99,7 @@ namespace QuizAPI.Controllers
 				{
 					questionToChange.Difficulty = difficultyToAdd;
 					questionToChange.DifficultyId = questionToChange.Difficulty.DifficultyId;
+					difficultyToAdd.Questions.Add(questionToChange);
 				}
 			}
 
@@ -114,6 +115,7 @@ namespace QuizAPI.Controllers
 				{
 					questionToChange.Category = categoryToAdd;
 					questionToChange.CategoryId = questionToChange.Category.CategoryId;
+					categoryToAdd.Questions.Add(questionToChange);
 				}
 
 			}
@@ -122,13 +124,11 @@ namespace QuizAPI.Controllers
 			{
 				if (questionPatches.Tags.Length > 0)
 				{
-					QuestionTag tagsToAdd = new();
-					tagsToAdd.QuestionId = id;
-					tagsToAdd.Question = questionToChange;
 
 					foreach (string tag in questionPatches.Tags)
 					{
 						Tag? tagObject = _valueToIdUtil.getTagObject(tag);
+						QuestionTag tagsToAdd = new();
 						if (tagObject == null)
 						{
 							return BadRequest();
@@ -136,24 +136,43 @@ namespace QuizAPI.Controllers
 						}
 						if (_context.QuestionTags.Select(s => s.QuestionId == id && s.TagId == tagObject.TagId) != null)
 						{
+							tagsToAdd.QuestionId = id;
+							tagsToAdd.Question = questionToChange;
 							tagsToAdd.TagId = tagObject.TagId;
                             tagsToAdd.Tag = tagObject;
+							tagObject.QuestionTags.Add(tagsToAdd);
+							questionToChange.QuestionTags.Add(tagsToAdd);
+							_context.QuestionTags.Update(tagsToAdd);
 						}
 						
 					};
 				}
 			}
 
+			Status pending = _valueToIdUtil.getStatusByObject("pending");
+			questionToChange.Status = pending;
+			questionToChange.StatusId = pending.StatusId;
+
 			try
 			{
 				_context.Questions.Update(questionToChange);
 				_context.SaveChanges();
 
-				return Ok(_context.Questions.Find(id));
+				List<string> tagsToReturn = (from t in _context.Tags
+										 join qt in _context.QuestionTags
+										 on t.TagId equals qt.TagId
+										 where qt.QuestionId == questionToChange.QuestionId
+										 select new
+										 {
+											 tagName = t.TagName
+										 }).ToList().Select(t => t.tagName).ToList();
+
+				return Ok(QuestionDTO.AsDTO(_context.Questions.Find(id), tagsToReturn.ToArray()));
 			}
 			catch (Exception e)
 			{
 				_ = e;
+				Console.WriteLine(e);
 				return BadRequest("Invalid Values");
 			}
 		}
