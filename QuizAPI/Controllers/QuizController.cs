@@ -137,7 +137,7 @@ namespace QuizAPI.Controllers
 						if (_context.QuestionTags.Select(s => s.QuestionId == id && s.TagId == tagObject.TagId) != null)
 						{
 							tagsToAdd.TagId = tagObject.TagId;
-							tagsToAdd.Tag = tagObject;
+                            tagsToAdd.Tag = tagObject;
 						}
 
 					};
@@ -154,7 +154,6 @@ namespace QuizAPI.Controllers
 			catch (Exception e)
 			{
 				_ = e;
-				Console.WriteLine(e.Message);
 				return BadRequest("Invalid Values");
 			}
 		}

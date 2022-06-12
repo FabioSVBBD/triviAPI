@@ -117,22 +117,22 @@ namespace QuizAPI.Model
 
             modelBuilder.Entity<QuestionTag>(entity =>
             {
-                entity.HasNoKey();
-
                 entity.ToTable("QuestionTag");
+
+                entity.Property(e => e.QuestionTagId).HasColumnName("QuestionTagID");
 
                 entity.Property(e => e.QuestionId).HasColumnName("QuestionID");
 
                 entity.Property(e => e.TagId).HasColumnName("TagID");
 
                 entity.HasOne(d => d.Question)
-                    .WithMany()
+                    .WithMany(p => p.QuestionTags)
                     .HasForeignKey(d => d.QuestionId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_QuestionTag.QuestionID");
 
                 entity.HasOne(d => d.Tag)
-                    .WithMany()
+                    .WithMany(p => p.QuestionTags)
                     .HasForeignKey(d => d.TagId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_QuestionTag.TagID");
