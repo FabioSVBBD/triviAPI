@@ -5,14 +5,11 @@ on:
     branches:
       - 'main'
       - 'feature**'
-  delete:
-    branches:
-      - 'feature**'
 
 env:
   PIPELINE_USER_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   PIPELINE_USER_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  SAM_TEMPLATE: QuizAPI/template.json
+  SAM_TEMPLATE: template.json
   TESTING_STACK_NAME: sam-pipeline-dev
   TESTING_PIPELINE_EXECUTION_ROLE: arn:aws:iam::574836245203:role/aws-sam-cli-managed-dev-pipe-PipelineExecutionRole-1M1KBQ84KETZM
   TESTING_CLOUDFORMATION_EXECUTION_ROLE: arn:aws:iam::574836245203:role/aws-sam-cli-managed-dev-p-CloudFormationExecutionR-7RMGTS6E7WTD
@@ -34,6 +31,9 @@ env:
 
 jobs:
   test:
+    defaults:
+      run:
+        working-directory: ./QuizAPI
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
@@ -42,13 +42,25 @@ jobs:
           # trigger the tests here
 
   delete-feature:
+    defaults:
+      run:
+        working-directory: ./QuizAPI
     if: startsWith(github.event.ref, 'feature') && github.event_name == 'delete'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-dotnet@v2
-          with:
-            dotnet-version: '6.x'
+        with:
+          dotnet-version: 6.0.x
+      - name: print working dir
+        run: ls
+      - name: Restore dependencies
+        run: dotnet restore
+      - name: Build
+        run: dotnet build -c Release --no-restore
+      - name: Test
+        run: dotnet test -c Release --no-build --verbosity normal --filter "Category!=LongRunning"
+
       - uses: aws-actions/setup-sam@v1
 
       - name: Assume the testing pipeline user role
@@ -72,6 +84,9 @@ jobs:
             --no-prompts
 
   build-and-deploy-feature:
+    defaults:
+      run:
+        working-directory: ./QuizAPI
     # this stage is triggered only for feature branches (feature*),
     # which will build the stack and deploy to a stack named with branch name.
     if: startsWith(github.ref, 'refs/heads/feature')
@@ -81,7 +96,15 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-dotnet@v2
         with:
-          dotnet-version: '6.x'
+          dotnet-version: 6.0.x
+      - name: print working dir
+        run: ls
+      - name: Restore dependencies
+        run: dotnet restore
+      - name: Build
+        run: dotnet build -c Release --no-restore
+      - name: Test
+        run: dotnet test -c Release --no-build --verbosity normal --filter "Category!=LongRunning"
       - uses: aws-actions/setup-sam@v1
       - run: sam build --template ${SAM_TEMPLATE}
 
@@ -107,6 +130,9 @@ jobs:
             --role-arn ${TESTING_CLOUDFORMATION_EXECUTION_ROLE}
 
   build-and-package:
+    defaults:
+      run:
+        working-directory: ./QuizAPI
     if: github.ref == 'refs/heads/main'
     needs: [test]
     runs-on: ubuntu-latest
@@ -114,7 +140,15 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-dotnet@v2
         with:
-          dotnet-version: '6.x'
+          dotnet-version: 6.0.x
+      - name: print working dir
+        run: ls
+      - name: Restore dependencies
+        run: dotnet restore
+      - name: Build
+        run: dotnet build -c Release --no-restore
+      - name: Test
+        run: dotnet test -c Release --no-build --verbosity normal --filter "Category!=LongRunning"
       - uses: aws-actions/setup-sam@v1
 
       - name: Build resources
@@ -167,14 +201,25 @@ jobs:
           path: packaged-prod.yaml
 
   deploy-testing:
+    defaults:
+      run:
+        working-directory: ./QuizAPI
     if: github.ref == 'refs/heads/main'
     needs: [build-and-package]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-dotnet@v2
-          with:
-            dotnet-version: '6.x'
+        with:
+          dotnet-version: 6.0.x
+      - name: print working dir
+        run: ls
+      - name: Restore dependencies
+        run: dotnet restore
+      - name: Build
+        run: dotnet build -c Release --no-restore
+      - name: Test
+        run: dotnet test -c Release --no-build --verbosity normal --filter "Category!=LongRunning"
       - uses: aws-actions/setup-sam@v1
       - uses: actions/download-artifact@v2
         with:
@@ -202,6 +247,9 @@ jobs:
             --role-arn ${TESTING_CLOUDFORMATION_EXECUTION_ROLE}
 
   integration-test:
+    defaults:
+      run:
+        working-directory: ./QuizAPI
     if: github.ref == 'refs/heads/main'
     needs: [deploy-testing]
     runs-on: ubuntu-latest
@@ -211,6 +259,9 @@ jobs:
           # trigger the integration tests here
 
   deploy-prod:
+    defaults:
+      run:
+        working-directory: ./QuizAPI
     if: github.ref == 'refs/heads/main'
     needs: [integration-test]
     runs-on: ubuntu-latest
@@ -220,8 +271,16 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-dotnet@v2
-          with:
-            dotnet-version: '6.x'
+        with:
+          dotnet-version: 6.0.x
+      - name: print working dir
+        run: ls
+      - name: Restore dependencies
+        run: dotnet restore
+      - name: Build
+        run: dotnet build -c Release --no-restore
+      - name: Test
+        run: dotnet test -c Release --no-build --verbosity normal --filter "Category!=LongRunning"
       - uses: aws-actions/setup-sam@v1
       - uses: actions/download-artifact@v2
         with:
