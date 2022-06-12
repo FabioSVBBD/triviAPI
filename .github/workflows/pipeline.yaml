@@ -47,8 +47,17 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-dotnet@v2
-          with:
-            dotnet-version: '6.x'
+        with:
+          dotnet-version: 6.0.x
+      - name: Move into QuizAPI
+        run: cd QuizAPI
+      - name: Restore dependencies
+        run: dotnet restore
+      - name: Build
+        run: dotnet build -c Release --no-restore
+      - name: Test
+        run: dotnet test -c Release --no-build --verbosity normal --filter "Category!=LongRunning"
+
       - uses: aws-actions/setup-sam@v1
 
       - name: Assume the testing pipeline user role
@@ -81,7 +90,15 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-dotnet@v2
         with:
-          dotnet-version: '6.x'
+          dotnet-version: 6.0.x
+      - name: Move into QuizAPI
+        run: cd QuizAPI
+      - name: Restore dependencies
+        run: dotnet restore
+      - name: Build
+        run: dotnet build -c Release --no-restore
+      - name: Test
+        run: dotnet test -c Release --no-build --verbosity normal --filter "Category!=LongRunning"
       - uses: aws-actions/setup-sam@v1
       - run: sam build --template ${SAM_TEMPLATE}
 
@@ -114,7 +131,15 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-dotnet@v2
         with:
-          dotnet-version: '6.x'
+          dotnet-version: 6.0.x
+      - name: Move into QuizAPI
+        run: cd QuizAPI
+      - name: Restore dependencies
+        run: dotnet restore
+      - name: Build
+        run: dotnet build -c Release --no-restore
+      - name: Test
+        run: dotnet test -c Release --no-build --verbosity normal --filter "Category!=LongRunning"
       - uses: aws-actions/setup-sam@v1
 
       - name: Build resources
@@ -173,8 +198,16 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-dotnet@v2
-          with:
-            dotnet-version: '6.x'
+        with:
+          dotnet-version: 6.0.x
+      - name: Move into QuizAPI
+        run: cd QuizAPI
+      - name: Restore dependencies
+        run: dotnet restore
+      - name: Build
+        run: dotnet build -c Release --no-restore
+      - name: Test
+        run: dotnet test -c Release --no-build --verbosity normal --filter "Category!=LongRunning"
       - uses: aws-actions/setup-sam@v1
       - uses: actions/download-artifact@v2
         with:
@@ -220,8 +253,16 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-dotnet@v2
-          with:
-            dotnet-version: '6.x'
+        with:
+          dotnet-version: 6.0.x
+      - name: Move into QuizAPI
+        run: cd QuizAPI
+      - name: Restore dependencies
+        run: dotnet restore
+      - name: Build
+        run: dotnet build -c Release --no-restore
+      - name: Test
+        run: dotnet test -c Release --no-build --verbosity normal --filter "Category!=LongRunning"
       - uses: aws-actions/setup-sam@v1
       - uses: actions/download-artifact@v2
         with:
