@@ -15,6 +15,8 @@ jobs:
     env: 
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      APP_SETTINGS: ${{ secrets.APP_SETTINGS_JSON }}
+
 
     steps:
     - uses: actions/checkout@v3
@@ -25,10 +27,14 @@ jobs:
     - name: AWS CLI
       run: dotnet tool install -g Amazon.Lambda.Tools
     - name: Restore dependencies 
-      run: pwd & dotnet restore QuizAPI.sln
+      run: dotnet restore QuizAPI.sln
     - name: Build
-      run: dotnet build --no-restore QuizAPI.sln
-    - name: Test
-      run: dotnet test --no-build --verbosity normal
+      run: |
+        echo ${{ env.APP_SETTINGS }} > appsettings.json
+        dotnet build --no-restore QuizAPI.sln
     - name: Deploy to Lambda
-      run: dotnet lambda deploy-serverless
+      run: |
+        echo ${{ env.APP_SETTINGS }} > appsettings.json 
+        dotnet lambda deploy-serverless --aws-access-key-id ${{ env.AWS_ACCESS_KEY_ID }} --aws-secret-key ${{ env.AWS_SECRET_ACCESS_KEY}} -cfg deployment-defaults.json
+    - name: Clean
+      run: rm appsettings.json
