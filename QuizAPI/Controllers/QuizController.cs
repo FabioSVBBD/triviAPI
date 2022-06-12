@@ -3,6 +3,8 @@ using QuizAPI.Model;
 using QuizAPI.Utils;
 using QuizAPI.DTOs;
 using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 
 namespace QuizAPI.Controllers
 {
@@ -14,9 +16,13 @@ namespace QuizAPI.Controllers
 		ValueToIdUtil _valueToIdUtil = new ValueToIdUtil();
 
 		[HttpGet("{id}")]
-		public IActionResult testMe(int id)
+		public IActionResult getQuestionById(int id)
 		{
-			Question? question = _context.Questions.Find(id);
+			var question = _context.Questions
+		.Where(question => question.QuestionId == id)
+		.Include(question => question.Category)
+		.Include(question => question.Difficulty)
+		.Include(question => question.Status);
 
 			if (question == null)
 			{
@@ -29,13 +35,78 @@ namespace QuizAPI.Controllers
 		[HttpGet]
 		public IActionResult getAllQuestions()
 		{
-			var questions = _context.Questions.ToList();  
-
+			var questions = _context.Questions.ToList();
 
 			return Ok(questions);
 		}
 
+		[HttpGet("categories")]
+		public IActionResult getallCategories()
+		{
+			var categories = _context.Categories.ToList();
 
+
+			if (categories == null)
+			{
+				return NotFound();
+			}
+			return Ok(categories);
+		}
+
+        [HttpGet("statuses")]
+		public IActionResult getAllStatuses()
+        {
+			var statuses = _context.Statuses.ToList();
+
+
+			if (statuses == null)
+            {
+				return NotFound();
+            }
+			return Ok(statuses);
+        }
+
+		[HttpGet("categories/CategoryName")]
+		public IActionResult getQuestionsbyName(string categoryName)
+		{
+			var categories = _context.Categories
+				.Where(name => name.CategoryName == categoryName)
+				.Include(questions => questions.Questions);
+
+			if (categories == null)
+			{
+				return NotFound();
+			}
+			return Ok(categories);
+		}
+
+
+		[HttpGet("difficulty/level")]
+		public IActionResult getDifficult(string level)
+		{
+			var difficults = _context.Difficulties
+				.Where(difficult => difficult.DifficultyName == level)
+				.Include(question => question.Questions);
+
+			if (difficults == null)
+			{
+				return NotFound();
+			}
+			return Ok(difficults);
+		}
+
+		[HttpGet("Status/statusCode")]
+		public IActionResult getQuestionsByStatusCode(string statusCode)
+        {
+			var status = _context.Statuses
+				.Where(statusTbl => statusTbl.StatusName == statusCode)
+				.Include(questionTbl => questionTbl.Questions);
+			if (status == null)
+            {
+				return NotFound();
+            }
+			return Ok(status);
+        }
 
 		[HttpPatch("{id}")]
 		public IActionResult updateStatus(int id, [FromBody] QuestionDTO questionForStatusUpdate)
