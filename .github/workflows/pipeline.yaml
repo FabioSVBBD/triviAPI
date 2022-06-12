@@ -29,12 +29,6 @@ jobs:
     - name: Restore dependencies 
       run: dotnet restore QuizAPI.sln
     - name: Build
-      run: |
-        echo ${{ env.APP_SETTINGS }} > appsettings.json
-        dotnet build --no-restore QuizAPI.sln
+      run: dotnet build --no-restore QuizAPI.sln
     - name: Deploy to Lambda
-      run: |
-        echo ${{ env.APP_SETTINGS }} > appsettings.json 
-        dotnet lambda deploy-serverless --aws-access-key-id ${{ env.AWS_ACCESS_KEY_ID }} --aws-secret-key ${{ env.AWS_SECRET_ACCESS_KEY}} -cfg deployment-defaults.json
-    - name: Clean
-      run: rm appsettings.json
+      run: dotnet lambda deploy-serverless --aws-access-key-id ${{ env.AWS_ACCESS_KEY_ID }} --aws-secret-key ${{ env.AWS_SECRET_ACCESS_KEY}} -cfg deployment-defaults.json
