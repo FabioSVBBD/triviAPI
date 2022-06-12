@@ -72,6 +72,7 @@ namespace QuizAPI.Controllers
 			var categories = _context.Categories
 				.Where(name => name.CategoryName == categoryName)
 				.Include(questions => questions.Questions);
+				
 
 			if (categories == null)
 			{
@@ -107,6 +108,15 @@ namespace QuizAPI.Controllers
             }
 			return Ok(status);
         }
+
+        /*[HttpGet("{Category}/difficulty")]
+		public IActionResult getQUestionbySpecifications(string category, string difficulty )
+        {
+			var questions = _context.Questions
+				.Where(categoryTbl => categoryTbl.Category.CategoryName == category)
+				.Wehere(category)
+				
+        }*/
 
 		[HttpPatch("{id}")]
 		public IActionResult updateStatus(int id, [FromBody] QuestionDTO questionForStatusUpdate)
