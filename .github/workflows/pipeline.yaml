@@ -52,7 +52,7 @@ jobs:
       - name: Move into QuizAPI
         run: cd QuizAPI
       - name: Restore dependencies
-        run: dotnet restore
+        run: pwd & dotnet restore
       - name: Build
         run: dotnet build -c Release --no-restore
       - name: Test
