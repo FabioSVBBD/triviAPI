@@ -52,6 +52,8 @@ namespace QuizAPI.Model
                     .IsUnicode(false);
             });
 
+            modelBuilder.Entity<Category>().Navigation(e => e.Questions).AutoInclude();
+
             modelBuilder.Entity<Difficulty>(entity =>
             {
                 entity.ToTable("Difficulty");

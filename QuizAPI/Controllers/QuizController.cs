@@ -67,7 +67,7 @@ namespace QuizAPI.Controllers
         }
 
 		[HttpGet("categories/CategoryName")]
-		public IActionResult getQuestionsbyName(string categoryName)
+		public IActionResult getQuestionsbyGategoryName(string categoryName)
 		{
 			var categories = _context.Categories
 				.Where(name => name.CategoryName == categoryName)
