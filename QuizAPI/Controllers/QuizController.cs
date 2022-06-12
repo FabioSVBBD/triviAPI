@@ -139,7 +139,7 @@ namespace QuizAPI.Controllers
 							tagsToAdd.TagId = tagObject.TagId;
                             tagsToAdd.Tag = tagObject;
 						}
-
+						
 					};
 				}
 			}
@@ -255,5 +255,103 @@ namespace QuizAPI.Controllers
 				return BadRequest("Question probably exists or an error occurred in our side");
 			}
 		}
+
+
+		[HttpPost]
+		public IActionResult insertQuestion([FromBody] QuestionDTO newQuestionDetails)
+		{
+
+
+			if (string.IsNullOrEmpty(newQuestionDetails.Question) ||
+				string.IsNullOrEmpty(newQuestionDetails.Answer) ||
+				string.IsNullOrEmpty(newQuestionDetails.Difficulty) ||
+				string.IsNullOrEmpty(newQuestionDetails.Category) ||
+				string.IsNullOrEmpty(newQuestionDetails.Status) ||
+				newQuestionDetails.Tags == null
+				)
+			{
+				return BadRequest("You are missing some fields");
+			}
+
+			var newQuestion = new Question();
+			newQuestion.Question1 = newQuestionDetails.Question;
+			newQuestion.Answer = newQuestionDetails.Answer;
+
+
+			var category = _valueToIdUtil.getCategoryObject(newQuestionDetails.Category);
+			if (category == null)
+			{
+				return BadRequest("Category does not exist");
+			}
+
+			newQuestion.Category = category;
+			newQuestion.CategoryId = category.CategoryId;
+
+
+			var difficulty = _valueToIdUtil.getDifficultyObject(newQuestionDetails.Difficulty);
+			if (difficulty == null)
+			{
+				return BadRequest("Difficulty does not exist");
+			}
+			newQuestion.Difficulty = difficulty;
+			newQuestion.DifficultyId = difficulty.DifficultyId;
+
+
+			var status = _valueToIdUtil.getStatusByObject(newQuestionDetails.Status);
+			if (status == null)
+			{
+				return BadRequest("Status does not exist");
+			}
+			newQuestion.Status = status;
+			newQuestion.StatusId = status.StatusId;
+
+
+			try
+			{
+				_context.Questions.Update(newQuestion);
+				_context.SaveChanges();
+				
+				
+                if(newQuestionDetails.Tags != null)
+                {
+					if(newQuestionDetails.Tags.Length > 0)
+                    {
+						foreach (string tag in newQuestionDetails.Tags)
+						{
+							QuestionTag tagsToAdd = new();
+							tagsToAdd.QuestionId = newQuestion.QuestionId;
+							tagsToAdd.Question = newQuestion;
+
+							Tag tagObject = _valueToIdUtil.getTagObject(tag);
+							if (tagObject == null)
+							{
+								return BadRequest();
+
+							}
+							tagsToAdd.TagId = tagObject.TagId;
+							tagsToAdd.Tag = tagObject;
+
+							_context.QuestionTags.Update(tagsToAdd);
+
+						};
+					}
+                }
+
+               
+
+                _context.SaveChanges();
+                return Ok(QuestionDTO.AsDTO(newQuestion, newQuestionDetails.Tags )); 
+			}
+			catch (Exception e)
+			{
+				_ = e;
+				Console.WriteLine(e);
+				return BadRequest("Failed To Connect to Database"); ;
+			}
+
+
+		}
+
+
 	}
 }
