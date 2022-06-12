@@ -111,6 +111,10 @@ namespace QuizAPI.Model
                     .HasConstraintName("FK_Question.StatusID");
             });
 
+            modelBuilder.Entity<Question>().Navigation(e => e.Status).AutoInclude();
+            modelBuilder.Entity<Question>().Navigation(e => e.Category).AutoInclude();
+            modelBuilder.Entity<Question>().Navigation(e => e.Difficulty).AutoInclude();
+
             modelBuilder.Entity<QuestionTag>(entity =>
             {
                 entity.HasNoKey();

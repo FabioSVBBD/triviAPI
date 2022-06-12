@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using QuizAPI.Model;
-using static QuizAPI.Middleware.APIKeyMiddleware;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,13 +15,15 @@ builder.Services.AddDbContext<TriviapiDBContext>(x => x.UseSqlServer(connectionS
 
 builder.Services.AddAWSLambdaHosting(LambdaEventSource.RestApi);
 
+builder.Services.AddControllers().AddJsonOptions(x =>
+								x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+
 var app = builder.Build();
 
 
 // possibly extract from condition
 app.UseSwagger();
 app.UseSwaggerUI();
-
 
 app.UseHttpsRedirection();
 
