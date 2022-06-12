@@ -12,7 +12,7 @@ on:
 env:
   PIPELINE_USER_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   PIPELINE_USER_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  SAM_TEMPLATE: template.json
+  SAM_TEMPLATE: QuizAPI/template.json
   TESTING_STACK_NAME: sam-pipeline-dev
   TESTING_PIPELINE_EXECUTION_ROLE: arn:aws:iam::574836245203:role/aws-sam-cli-managed-dev-pipe-PipelineExecutionRole-1M1KBQ84KETZM
   TESTING_CLOUDFORMATION_EXECUTION_ROLE: arn:aws:iam::574836245203:role/aws-sam-cli-managed-dev-p-CloudFormationExecutionR-7RMGTS6E7WTD
