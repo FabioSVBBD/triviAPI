@@ -1,0 +1,7 @@
+{
+    "stack-name": "triviapi",
+    "s3-bucket": "triviapi-code-repo",
+    "template": "serverless.template",
+    "region": "eu-west-1",
+    "configuration": "Release"
+}
