@@ -24,9 +24,7 @@ jobs:
     - name: AWS CLI
       run: dotnet tool install -g Amazon.Lambda.Tools
     - name: Restore dependencies 
-      run:
-        pwd
-        dotnet restore QuizAPI.sln
+      run: pwd & dotnet restore QuizAPI.sln
     - name: Build
       run: dotnet build --no-restore QuizAPI.sln
     - name: Test
