@@ -7,6 +7,7 @@ namespace QuizAPI.Model
     {
         public int TagId { get; set; }
         public int QuestionId { get; set; }
+        public int QuestionTagId { get; set; }
 
         public virtual Question Question { get; set; } = null!;
         public virtual Tag Tag { get; set; } = null!;
