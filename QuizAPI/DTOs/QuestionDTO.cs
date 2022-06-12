@@ -28,9 +28,9 @@ namespace QuizAPI.DTOs
 		public string? Question { get => question; set => question = value; }
         public string[]? Tags { get => tags; set => tags = value; }
 
-		public static QuestionDTO AsDTO(Question question)
+		public static QuestionDTO AsDTO(Question question, String[] tags )
 		{
-			return new QuestionDTO(question.Question1, question.Answer, question.Status.StatusName, question.Difficulty.DifficultyName, question.Category.CategoryName, question.Tags );
+			return new QuestionDTO(question.Question1, question.Answer, question.Status.StatusName, question.Difficulty.DifficultyName, question.Category.CategoryName, tags );
 
 		}
 
