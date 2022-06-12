@@ -252,7 +252,7 @@ namespace QuizAPI.Controllers
 			catch (Exception e)
 			{
 				_ = e;
-				return BadRequest("Failed To Connect to Database");
+				return BadRequest("Question probably exists or an error occurred in our side");
 			}
 		}
 	}
