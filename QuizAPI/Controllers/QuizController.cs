@@ -307,24 +307,32 @@ namespace QuizAPI.Controllers
 				_context.SaveChanges();
 				
 				
-                QuestionTag tagsToAdd = new();
-                tagsToAdd.QuestionId = newQuestion.QuestionId;
-                tagsToAdd.Question = newQuestion;
-
-                foreach (string tag in newQuestionDetails.Tags)
+                if(newQuestionDetails.Tags != null)
                 {
-                    Tag tagObject = _valueToIdUtil.getTagObject(tag);
-                    if (tagObject == null)
+					if(newQuestionDetails.Tags.Length > 0)
                     {
-                        return BadRequest();
+						foreach (string tag in newQuestionDetails.Tags)
+						{
+							QuestionTag tagsToAdd = new();
+							tagsToAdd.QuestionId = newQuestion.QuestionId;
+							tagsToAdd.Question = newQuestion;
 
-                    }
-                    tagsToAdd.TagId = tagObject.TagId;
-                    tagsToAdd.Tag = tagObject;
+							Tag tagObject = _valueToIdUtil.getTagObject(tag);
+							if (tagObject == null)
+							{
+								return BadRequest();
 
-                    _context.QuestionTags.Update(tagsToAdd);
+							}
+							tagsToAdd.TagId = tagObject.TagId;
+							tagsToAdd.Tag = tagObject;
 
-                };
+							_context.QuestionTags.Update(tagsToAdd);
+
+						};
+					}
+                }
+
+               
 
                 _context.SaveChanges();
                 return Ok(QuestionDTO.AsDTO(newQuestion, newQuestionDetails.Tags )); 
