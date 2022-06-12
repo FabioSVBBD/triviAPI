@@ -32,6 +32,4 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.UseMiddleware<QuizAPI.Middleware.APIKeyMiddleware>();
-
 app.Run();
