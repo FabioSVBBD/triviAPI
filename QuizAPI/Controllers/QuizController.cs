@@ -30,9 +30,15 @@ namespace QuizAPI.Controllers
 		public IActionResult updateStatus(int id, [FromBody] QuestionDTO questionForStatusUpdate)
 		{
 			Question? questionToChange = _context.Questions.Find(id);
+
+			if (questionToChange == null)
+			{
+				return NotFound();
+			}
+
 			if (!string.IsNullOrEmpty(questionForStatusUpdate.Status))
 			{
-				Status statusToAdd = _valueToIdUtil.getStatusByObject(questionForStatusUpdate.Status);
+				Status? statusToAdd = _valueToIdUtil.getStatusByObject(questionForStatusUpdate.Status);
 				if (statusToAdd == null)
 				{
 					string cats = String.Join(", ", _context.Statuses.Select(cat => cat.StatusName)) + ".";
@@ -64,12 +70,12 @@ namespace QuizAPI.Controllers
 		[HttpPatch("mainPatch/{id}")]
 		public IActionResult updateQuestion(int id, [FromBody] QuestionDTO questionPatches)
 		{
-			if (!_valueToIdUtil.questionExists(id))
+			Question? questionToChange = _context.Questions.Find(id);
+
+			if (questionToChange == null)
 			{
 				return NotFound();
 			}
-
-			Question? questionToChange = _context.Questions.Find(id);
 
 			if (!string.IsNullOrEmpty(questionPatches.Question))
 			{
@@ -83,7 +89,7 @@ namespace QuizAPI.Controllers
 
 			if (!string.IsNullOrEmpty(questionPatches.Difficulty))
 			{
-				Difficulty difficultyToAdd = _valueToIdUtil.getDifficultyObject(questionPatches.Difficulty);
+				Difficulty? difficultyToAdd = _valueToIdUtil.getDifficultyObject(questionPatches.Difficulty);
 				if (difficultyToAdd == null)
 				{
 					string cats = String.Join(", ", _context.Difficulties.Select(cat => cat.DifficultyName)) + ".";
@@ -98,7 +104,7 @@ namespace QuizAPI.Controllers
 
 			if (!string.IsNullOrEmpty(questionPatches.Category))
 			{
-				Category categoryToAdd = _valueToIdUtil.getCategoryObject(questionPatches.Category);
+				Category? categoryToAdd = _valueToIdUtil.getCategoryObject(questionPatches.Category);
 				if (categoryToAdd == null)
 				{
 					string cats = String.Join(", ", _context.Categories.Select(cat => cat.CategoryName)) + ".";
@@ -122,7 +128,7 @@ namespace QuizAPI.Controllers
 
 					foreach (string tag in questionPatches.Tags)
 					{
-						Tag tagObject = _valueToIdUtil.getTagObject(tag);
+						Tag? tagObject = _valueToIdUtil.getTagObject(tag);
 						if (tagObject == null)
 						{
 							return BadRequest();
@@ -156,12 +162,12 @@ namespace QuizAPI.Controllers
 		[HttpPut("{id}")]
 		public IActionResult putQuestion(int id, [FromBody] QuestionDTO updatedQuestion)
 		{
-			if (!_valueToIdUtil.questionExists(id))
+			Question? question = _context.Questions.Find(id);
+
+			if (question == null)
 			{
 				return NotFound();
 			}
-
-			Question? question = _context.Questions.Find(id);
 
 			if (string.IsNullOrEmpty(updatedQuestion.Question) ||
 				string.IsNullOrEmpty(updatedQuestion.Answer) ||
@@ -223,18 +229,17 @@ namespace QuizAPI.Controllers
 
 				foreach (string tag in updatedQuestion.Tags)
 				{
-					Tag tagObject = _valueToIdUtil.getTagObject(tag);
+					Tag? tagObject = _valueToIdUtil.getTagObject(tag);
 					if (tagObject == null)
 					{
-						return BadRequest();
-
+						return BadRequest(_valueToIdUtil.getInvalidTagResponse());
 					}
+
 					if (_context.QuestionTags.Select(s => s.QuestionId == id && s.TagId == tagObject.TagId) != null)
 					{
 						tagsToAdd.TagId = tagObject.TagId;
 						tagsToAdd.Tag = tagObject;
 					}
-
 				};
 			}
 
