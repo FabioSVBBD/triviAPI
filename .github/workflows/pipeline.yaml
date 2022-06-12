@@ -32,3 +32,4 @@ jobs:
       run: dotnet test --no-build --verbosity normal
     - name: Deploy to Lambda
       run: dotnet lambda deploy-serverless --aws-access-key-id ${{ env.AWS_ACCESS_KEY_ID }} --aws-secret-key ${{ env.AWS_SECRET_ACCESS_KEY}} -cfg deployment-defaults.json
+
