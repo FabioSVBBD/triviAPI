@@ -52,8 +52,6 @@ jobs:
       - uses: actions/setup-dotnet@v2
         with:
           dotnet-version: 6.0.x
-      - name: Move into QuizAPI
-        run: cd QuizAPI
       - name: print working dir
         run: ls
       - name: Restore dependencies
@@ -99,8 +97,6 @@ jobs:
       - uses: actions/setup-dotnet@v2
         with:
           dotnet-version: 6.0.x
-      - name: Move into QuizAPI
-        run: cd QuizAPI
       - name: print working dir
         run: ls
       - name: Restore dependencies
@@ -145,8 +141,6 @@ jobs:
       - uses: actions/setup-dotnet@v2
         with:
           dotnet-version: 6.0.x
-      - name: Move into QuizAPI
-        run: cd QuizAPI
       - name: print working dir
         run: ls
       - name: Restore dependencies
@@ -218,8 +212,6 @@ jobs:
       - uses: actions/setup-dotnet@v2
         with:
           dotnet-version: 6.0.x
-      - name: Move into QuizAPI
-        run: cd QuizAPI
       - name: print working dir
         run: ls
       - name: Restore dependencies
@@ -281,8 +273,6 @@ jobs:
       - uses: actions/setup-dotnet@v2
         with:
           dotnet-version: 6.0.x
-      - name: Move into QuizAPI
-        run: cd QuizAPI
       - name: print working dir
         run: ls
       - name: Restore dependencies
