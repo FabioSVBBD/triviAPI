@@ -51,8 +51,10 @@ jobs:
           dotnet-version: 6.0.x
       - name: Move into QuizAPI
         run: cd QuizAPI
+      - name: print working dir
+        run: pwd
       - name: Restore dependencies
-        run: pwd & dotnet restore
+        run: dotnet restore
       - name: Build
         run: dotnet build -c Release --no-restore
       - name: Test
