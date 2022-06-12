@@ -56,6 +56,7 @@ CREATE TABLE QuestionTag (
      TagID INT NOT NULL,
 	 QuestionID INT NOT NULL,
 	 CONSTRAINT [FK_QuestionTag.TagID] FOREIGN KEY (TagID) REFERENCES Tag(TagID),
-	 CONSTRAINT [FK_QuestionTag.QuestionID] FOREIGN KEY (QuestionID) REFERENCES Question(QuestionID)
+	 CONSTRAINT [FK_QuestionTag.QuestionID] FOREIGN KEY (QuestionID) REFERENCES Question(QuestionID),
+     CONSTRAINT [PK_QuestionTag] PRIMARY KEY (TagID, QuestionID)
 );
 GO
