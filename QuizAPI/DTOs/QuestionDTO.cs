@@ -11,7 +11,7 @@ namespace QuizAPI.DTOs
 		private string? status;
 		private string[]? tags;
 
-		public QuestionDTO(String question, String answer, String status, String difficulty, String category, String[] tags)
+		public QuestionDTO(String question, String answer, String status, String difficulty, String category, String[]? tags)
 		{
 			this.question = question;
 			this.answer = answer;
@@ -28,12 +28,13 @@ namespace QuizAPI.DTOs
 		public string? Question { get => question; set => question = value; }
         public string[]? Tags { get => tags; set => tags = value; }
 
-		public static QuestionDTO AsDTO(Question question, String[] tags )
+		public static QuestionDTO? AsDTO(Question? question, String[]? tags )
 		{
+			if (question == null) {
+				return null;
+			}
+
 			return new QuestionDTO(question.Question1, question.Answer, question.Status.StatusName, question.Difficulty.DifficultyName, question.Category.CategoryName, tags );
-
 		}
-
-
 	}
 }

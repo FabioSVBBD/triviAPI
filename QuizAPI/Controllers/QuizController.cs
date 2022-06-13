@@ -25,7 +25,6 @@ namespace QuizAPI.Controllers
             return Ok(question);
         }
 
-
         [HttpPatch("{id}")]
         public IActionResult updateStatus(int id, [FromBody] QuestionDTO questionForStatusUpdate)
         {
@@ -49,7 +48,6 @@ namespace QuizAPI.Controllers
                     questionToChange.Status = statusToAdd;
                     questionToChange.StatusId = questionToChange.Status.StatusId;
                 }
-
             }
 
             try
@@ -117,14 +115,12 @@ namespace QuizAPI.Controllers
                     questionToChange.CategoryId = questionToChange.Category.CategoryId;
                     categoryToAdd.Questions.Add(questionToChange);
                 }
-
             }
 
             if (questionPatches.Tags != null)
             {
                 if (questionPatches.Tags.Length > 0)
                 {
-
                     foreach (string tag in questionPatches.Tags)
                     {
                         Tag? tagObject = _valueToIdUtil.getTagObject(tag);
@@ -132,7 +128,6 @@ namespace QuizAPI.Controllers
                         if (tagObject == null)
                         {
                             return BadRequest();
-
                         }
                         if (_context.QuestionTags.Select(s => s.QuestionId == id && s.TagId == tagObject.TagId) != null)
                         {
@@ -144,12 +139,16 @@ namespace QuizAPI.Controllers
                             questionToChange.QuestionTags.Add(tagsToAdd);
                             _context.QuestionTags.Update(tagsToAdd);
                         }
-
                     };
                 }
             }
 
-            Status pending = _valueToIdUtil.getStatusByObject("pending");
+            Status? pending = _valueToIdUtil.getStatusByObject("pending");
+
+						if (pending == null) {
+							return StatusCode(500, _valueToIdUtil.getPendingFailResponse());
+						}
+
             questionToChange.Status = pending;
             questionToChange.StatusId = pending.StatusId;
             pending.Questions.Add(questionToChange);
@@ -199,7 +198,6 @@ namespace QuizAPI.Controllers
 
             question.Question1 = updatedQuestion.Question;
             question.Answer = updatedQuestion.Answer;
-
 
             Difficulty? fetchedDifficulty = _valueToIdUtil.getDifficultyObject(updatedQuestion.Difficulty);
 
@@ -253,7 +251,12 @@ namespace QuizAPI.Controllers
                 };
             }
 
-            Status pending = _valueToIdUtil.getStatusByObject("pending");
+            Status? pending = _valueToIdUtil.getStatusByObject("pending");
+
+						if (pending == null) {
+							return StatusCode(500, _valueToIdUtil.getPendingFailResponse());
+						}
+						
             question.Status = pending;
             question.StatusId = pending.StatusId;
             pending.Questions.Add(question);
@@ -284,8 +287,6 @@ namespace QuizAPI.Controllers
         [HttpPost]
         public IActionResult insertQuestion([FromBody] QuestionDTO newQuestionDetails)
         {
-
-
             if (string.IsNullOrEmpty(newQuestionDetails.Question) ||
                 string.IsNullOrEmpty(newQuestionDetails.Answer) ||
                 string.IsNullOrEmpty(newQuestionDetails.Difficulty) ||
@@ -301,7 +302,6 @@ namespace QuizAPI.Controllers
             newQuestion.Question1 = newQuestionDetails.Question;
             newQuestion.Answer = newQuestionDetails.Answer;
 
-
             var category = _valueToIdUtil.getCategoryObject(newQuestionDetails.Category);
             if (category == null)
             {
@@ -311,7 +311,6 @@ namespace QuizAPI.Controllers
             newQuestion.Category = category;
             newQuestion.CategoryId = category.CategoryId;
 
-
             var difficulty = _valueToIdUtil.getDifficultyObject(newQuestionDetails.Difficulty);
             if (difficulty == null)
             {
@@ -319,7 +318,6 @@ namespace QuizAPI.Controllers
             }
             newQuestion.Difficulty = difficulty;
             newQuestion.DifficultyId = difficulty.DifficultyId;
-
 
             var status = _valueToIdUtil.getStatusByObject(newQuestionDetails.Status);
             if (status == null)
@@ -329,12 +327,10 @@ namespace QuizAPI.Controllers
             newQuestion.Status = status;
             newQuestion.StatusId = status.StatusId;
 
-
             try
             {
                 _context.Questions.Update(newQuestion);
                 _context.SaveChanges();
-
 
                 if (newQuestionDetails.Tags != null)
                 {
@@ -346,11 +342,10 @@ namespace QuizAPI.Controllers
                             tagsToAdd.QuestionId = newQuestion.QuestionId;
                             tagsToAdd.Question = newQuestion;
 
-                            Tag tagObject = _valueToIdUtil.getTagObject(tag);
+                            Tag? tagObject = _valueToIdUtil.getTagObject(tag);
                             if (tagObject == null)
                             {
                                 return BadRequest();
-
                             }
                             tagsToAdd.TagId = tagObject.TagId;
                             tagsToAdd.Tag = tagObject;
@@ -361,8 +356,6 @@ namespace QuizAPI.Controllers
                     }
                 }
 
-
-
                 _context.SaveChanges();
                 return Ok(QuestionDTO.AsDTO(newQuestion, newQuestionDetails.Tags));
             }
@@ -372,8 +365,6 @@ namespace QuizAPI.Controllers
                 Console.WriteLine(e);
                 return BadRequest("Failed To Connect to Database"); ;
             }
-
-
         }
 
 		[HttpDelete("{id}")]
@@ -402,7 +393,5 @@ namespace QuizAPI.Controllers
 				return BadRequest("Question probably exists or an error occurred in our side");
 			}
 		}
-
-
-    }
+	}
 }

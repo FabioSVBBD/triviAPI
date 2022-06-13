@@ -71,5 +71,10 @@ namespace QuizAPI.Utils
 				{ "values", _context.Tags.ToList().Select(t => t.TagName).ToList() }
 			};
 		}
+
+		public Dictionary<String, String> getPendingFailResponse()
+		{
+			return new() { { "message", "An issue occurred setting status to pending. We have some maintenance to do" } };
+		}
 	}
 }
