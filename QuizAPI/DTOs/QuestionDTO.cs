@@ -31,15 +31,6 @@ namespace QuizAPI.DTOs
 			this.category = category;
 		}
 
-		public QuestionDTO(String question, String answer, String status, String difficulty, String category)
-		{
-			this.question = question;
-			this.answer = answer;
-			this.status = status;
-			this.difficulty = difficulty;
-			this.category = category;
-		}
-
 		public string? Status { get => status; set => status = value; }
 		public string? Category { get => category; set => category = value; }
 		public string? Difficulty { get => difficulty; set => difficulty = value; }
