@@ -40,23 +40,36 @@ namespace QuizAPI.Controllers
 			return Ok(questions);
 		}
 
+        [HttpGet("difficulties")]
+		public IActionResult getAllDifficulties()
+        {
+			var difficulties = _context.Difficulties.Select(diff => diff.DifficultyName );
+
+			if (difficulties == null)
+            {
+				return NotFound();
+            }
+
+			return Ok(difficulties);
+        }
+
 		[HttpGet("categories")]
 		public IActionResult getallCategories()
 		{
-			var categories = _context.Categories.ToList();
-
+			var categories = _context.Categories.Select(c => c.CategoryName);
 
 			if (categories == null)
-			{
+            {
 				return NotFound();
-			}
+            }
+
 			return Ok(categories);
 		}
-
+		
         [HttpGet("statuses")]
 		public IActionResult getAllStatuses()
         {
-			var statuses = _context.Statuses.ToList();
+			var statuses = _context.Statuses.Select(status => status.StatusName);
 
 
 			if (statuses == null)
@@ -69,16 +82,36 @@ namespace QuizAPI.Controllers
 		[HttpGet("categories/CategoryName")]
 		public IActionResult getQuestionsbyGategoryName(string categoryName)
 		{
-			var categories = _context.Categories
-				.Where(name => name.CategoryName == categoryName)
-				.Include(questions => questions.Questions);
-				
+			var idofCategory = _context.Categories.Where(c => c.CategoryName == categoryName).Select(id => id.CategoryId).First();
 
+			var categories = _context.Questions
+				.Join(_context.Difficulties,
+				(questionTbl => questionTbl.DifficultyId),
+				(difficultyTbl => difficultyTbl.DifficultyId)
+				, (_question, _difficuclty) => new
+				{
+					Question = _question.Question1,
+					Answer = _question.Answer,
+					Difficulty = _difficuclty.DifficultyName,
+					CategoryName = categoryName,
+					CategoryNumber = _question.CategoryId,
+					
+				}).Where(c => c.CategoryNumber == idofCategory).ToList();
+
+
+			if (categories == null)
+            {
+				return NotFound();
+            }
+
+			return Ok(categories);
+/*
 			if (categories == null)
 			{
 				return NotFound();
 			}
-			return Ok(categories);
+			return Ok(categories);*/
+
 		}
 
 
