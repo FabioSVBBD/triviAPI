@@ -13,8 +13,6 @@ jobs:
     env: 
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      APP_SETTINGS: ${{ secrets.APP_SETTINGS_JSON }}
-
 
     steps:
     - uses: actions/checkout@v3
@@ -34,4 +32,5 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: eu-west-1
     - name: Deploy to Lambda
-      run: dotnet lambda deploy-serverless -cfg deployment-defaults.json
+      run: dotnet lambda deploy-serverless -sn triviapi -sb triviapi-code-repo --region eu-west-1 -t serverless.template
+
