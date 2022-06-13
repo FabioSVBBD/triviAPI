@@ -378,6 +378,11 @@ namespace QuizAPI.Controllers
 			}
 
 			var deletedStatus = _valueToIdUtil.getStatusByObject("deleted");
+
+			if (deletedStatus == null) {
+				return StatusCode(500, _valueToIdUtil.getDeletedFailResponse());
+			}
+
 			question.Status = deletedStatus;
 
 			try

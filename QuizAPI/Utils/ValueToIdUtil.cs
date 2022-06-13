@@ -74,7 +74,12 @@ namespace QuizAPI.Utils
 
 		public Dictionary<String, String> getPendingFailResponse()
 		{
-			return new() { { "message", "An issue occurred setting status to pending. We have some maintenance to do" } };
+			return new() { { "message", "An issue occurred setting status to pending. We have some maintenance to do." } };
+		}
+
+		public Dictionary<String, String> getDeletedFailResponse()
+		{
+			return new() { { "message", "An issue occurred setting setting status to deleted. We have some maintenance to do." } };
 		}
 	}
 }
