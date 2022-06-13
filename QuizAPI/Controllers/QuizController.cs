@@ -2,7 +2,6 @@
 using QuizAPI.Model;
 using QuizAPI.Utils;
 using QuizAPI.Utilities;
-using Microsoft.EntityFrameworkCore;
 using QuizAPI.DTOs;
 using System.Text.Json;
 
@@ -18,18 +17,10 @@ namespace QuizAPI.Controllers
 		[HttpGet("{id}")]
 		public IActionResult getQuestionById(int id)
 		{
-			var question = _context.Questions
-		.Where(question => question.QuestionId == id)
-		.Include(question => question.Category)
-		.Include(question => question.Difficulty)
-		.Include(question => question.Status);
+			PaginationHandler _page = new PaginationHandler(_context.Categories, _context.Difficulties);
+			var question = _context.Questions.Where(question => question.QuestionId == id);
 
-			if (question == null)
-			{
-				return NotFound();
-			}
-
-			return Ok(question);
+			return Ok(_page.paginateQuestions(question, new QueryParam()));
 		}
 
 		[HttpGet]
@@ -113,47 +104,6 @@ namespace QuizAPI.Controllers
 		[HttpGet("categories/CategoryName")]
 		public IActionResult getQuestionsbyGategoryName(string categoryName)
 		{
-		/*	var idofCategory = _context.Categories.Where(c => c.CategoryName == categoryName).Select(id => id.CategoryId).First();
-
-			var categories = _context.Questions
-				.Join(_context.Difficulties,
-				(questionTbl => questionTbl.DifficultyId),
-				(difficultyTbl => difficultyTbl.DifficultyId)
-				, (_question, _difficuclty) => new
-				{
-					Question = _question.Question1,
-					Answer = _question.Answer,
-					Difficulty = _difficuclty.DifficultyName,
-					CategoryName = categoryName,
-					CategoryNumber = _question.CategoryId,
-					
-				}).Where(c => c.CategoryNumber == idofCategory).ToList();
-
-
-			if (categories == null)
-            {
-				return NotFound();
-            }
-
-			return Ok(categories); */
-/*
-			if (categories == null)
-			{
-				return NotFound();
-			}
-			return Ok(categories);*/
-
-			/*var categories = _context.Categories
-				.Where(name => name.CategoryName == categoryName)
-				.Include(questions => questions.Questions);*/
-
-
-
-			/*if (categories == null)
-			{
-				return NotFound();
-			}*/
-
 			 PaginationHandler pg = new PaginationHandler(_context.Categories, _context.Difficulties);
 
 			 var thisWholeTHing = _context.Questions.Where(x => x.Category.CategoryName.ToLower() == categoryName.ToLower());

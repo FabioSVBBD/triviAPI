@@ -38,24 +38,16 @@ public class PaginationHandler
 
     public PaginationHandler paginateQuestions(IQueryable<Question> questionQS, QueryParam query)
     {
-        /*lts = questionQS.Skip((query.Page - 1) * this.pageSize).Take(pageSize).Join(
-            categoryQS,
-            (q => q.CategoryId),
-            (c => c.CategoryId),
-            (_question, _category) =>
-                new QuestionData(_question.Question1, _question.Answer, _category.CategoryName,
-                difficultyQS.First(x => x.DifficultyId == _question.DifficultyId).DifficultyName
-            )
-         ).ToList();*/
+        IQueryable<Question> approvedQuerySet = questionQS.Where(ques => ques.Status.StatusName.ToLower() == "approved");
 
-        questionQS.Skip((query.Page - 1) * this.pageSize).Take(pageSize).ToList().ForEach(
+        approvedQuerySet.Skip((query.Page - 1) * this.pageSize).Take(pageSize).ToList().ForEach(
             x => results.Add(
                 new QuestionData(x.Question1, x.Answer, x.Category.CategoryName, x.Difficulty.DifficultyName)
           )
         );
 
         page = query.Page;
-        count = questionQS.Count();
+        count = approvedQuerySet.Count();
         next = count - pageSize * page > 0 ? buildURL(query, true) : String.Empty;
         back = page > 1 ? buildURL(query, false) : String.Empty;  
 
