@@ -31,4 +31,4 @@ jobs:
     - name: Build
       run: dotnet build --no-restore QuizAPI.sln
     - name: Deploy to Lambda
-      run: dotnet lambda deploy-serverless --aws-access-key-id ${{ env.AWS_ACCESS_KEY_ID }} --aws-secret-key ${{ env.AWS_SECRET_ACCESS_KEY}} -cfg deployment-defaults.json
+      run: dotnet lambda deploy-serverless -sn triviapi -sb triviapi-code-repo --region eu-west-1 -t serverless.template
