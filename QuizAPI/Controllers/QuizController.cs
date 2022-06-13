@@ -44,6 +44,7 @@ namespace QuizAPI.Controllers
 			return paginatedBody.results.Count > 0 ? Ok(paginatedBody) : NotFound(paginatedBody);
 		}
 
+
         [HttpGet("difficulties")]
 		public IActionResult getAllDifficulties()
         {
@@ -82,6 +83,32 @@ namespace QuizAPI.Controllers
             }
 			return Ok(statuses);
         }
+
+		[HttpGet("tags")]
+		public IActionResult getAllTags()
+        {
+			var tags = _context.Tags.Select(tag => tag.TagName);
+
+			if (tags == null)
+            {
+				return NotFound();
+            }
+			return Ok(tags);
+        }
+
+        [HttpGet("tags/TagName")]
+		public IActionResult GetAllQuestionsByName(string TagName)
+        {
+			var tagID = _context.Tags.Where(tagTbl => tagTbl.TagName == TagName).Select(id => id.TagId).First();
+
+			var questionID = _context.QuestionTags.Where(qtagTbl => qtagTbl.TagId == tagID).Select(id => id.QuestionId).First();
+
+			var questions = _context.Questions.Where(tagTbl => tagTbl.QuestionId == questionID);
+
+			PaginationHandler pg = new PaginationHandler(_context.Categories, _context.Difficulties);
+
+			return Ok(pg.paginateQuestions(questions, new QueryParam()));
+		}
 
 		[HttpGet("categories/CategoryName")]
 		public IActionResult getQuestionsbyGategoryName(string categoryName)
@@ -136,40 +163,44 @@ namespace QuizAPI.Controllers
 
 
 		[HttpGet("difficulty/level")]
-		public IActionResult getDifficult(string level)
+		public IActionResult getQuestionsByDifficulty(string level)
 		{
-			var difficults = _context.Difficulties
-				.Where(difficult => difficult.DifficultyName == level)
-				.Include(question => question.Questions);
+			var difficultyLevelID = _context.Difficulties.Where(difficullyLevel => difficullyLevel.DifficultyName == level).Select(levelID => levelID.DifficultyId).First();
+			
+			var questions = _context.Questions.Where(difficultyTbl => difficultyTbl.DifficultyId == difficultyLevelID);
 
-			if (difficults == null)
+			PaginationHandler pg = new PaginationHandler(_context.Categories, _context.Difficulties);
+
+
+			if (questions == null)
 			{
 				return NotFound();
 			}
-			return Ok(difficults);
+
+			return Ok(pg.paginateQuestions(questions, new QueryParam()));
 		}
 
 		[HttpGet("Status/statusCode")]
 		public IActionResult getQuestionsByStatusCode(string statusCode)
         {
-			var status = _context.Statuses
-				.Where(statusTbl => statusTbl.StatusName == statusCode)
-				.Include(questionTbl => questionTbl.Questions);
-			if (status == null)
+			var statusID = _context.Statuses.Where(statusName => statusName.StatusName == statusCode).Select(statusID => statusID.StatusId).First();
+
+			var questions = _context.Questions.Where(q => q.StatusId == statusID);
+
+			if (questions == null)
             {
 				return NotFound();
             }
-			return Ok(status);
+
+			PaginationHandler pg = new PaginationHandler(_context.Categories, _context.Difficulties);
+			
+
+			return Ok(pg.paginateQuestions(questions, new QueryParam()));
+			
         }
 
-        /*[HttpGet("{Category}/difficulty")]
-		public IActionResult getQUestionbySpecifications(string category, string difficulty )
-        {
-			var questions = _context.Questions
-				.Where(categoryTbl => categoryTbl.Category.CategoryName == category)
-				.Wehere(category)
-				
-        }*/
+
+
 
 		[HttpPatch("{id}")]
 		public IActionResult updateStatus(int id, [FromBody] QuestionDTO questionForStatusUpdate)
