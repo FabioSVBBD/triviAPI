@@ -1,7 +1,6 @@
 ﻿using QuizAPI.Model;
 using QuizAPI.DTOs;
-using System.Text;
-
+using QuizAPI.Utils;
 namespace QuizAPI.Utilities;
 public class PaginationHandler
 {
@@ -50,13 +49,14 @@ public class PaginationHandler
          ).ToList();*/
 
         questionQS.Skip((query.Page - 1) * this.pageSize).Take(pageSize).ToList().ForEach(
-            x => results.Add(new QuestionData(x.Question1, x.Answer, x.Category.CategoryName, x.Difficulty.DifficultyName)
+            x => results.Add(
+                new QuestionData(x.Question1, x.Answer, x.Category.CategoryName, x.Difficulty.DifficultyName)
           )
         );
 
         page = query.Page;
         count = questionQS.Count();
-        next = page < (count / pageSize) ? buildURL(query, true) : String.Empty;
+        next = count - pageSize * page > 0 ? buildURL(query, true) : String.Empty;
         back = page > 1 ? buildURL(query, false) : String.Empty;  
 
         return this;
@@ -68,22 +68,22 @@ public class PaginationHandler
         int pageModifier = next ? 1 : -1;
         List<string> paramList = new List<string>();
 
-        Console.WriteLine(query.Page + pageModifier);
-        paramList.Append(string.Format("Page={0}", query.Page + pageModifier));
+        paramList.Add(string.Format("Page={0}", query.Page + pageModifier));
         
         query.Categories.ForEach(
-            cat => paramList.Append(
+            cat => paramList.Add(
                string.Format("Categories={0}", cat) 
            )
         );
 
         query.Difficulties.ForEach(
-            diff => paramList.Append(
+            diff => paramList.Add(
                 string.Format("Difficulties={0}", diff)
            )
         );
-        Console.WriteLine(paramList.Count);
 
-        return query.baseUrl + "?" + string.Join("&", paramList);
+        string parameters = paramList.Count > 0 ? "?" + String.Join("&", paramList) : String.Empty;
+
+        return $"{UrlHelper.baseURL}{parameters}";
     }
 }

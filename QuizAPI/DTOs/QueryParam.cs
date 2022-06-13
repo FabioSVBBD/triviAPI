@@ -6,7 +6,6 @@ public class QueryParam
     private List<string> difficulties = new();
 
     public int Page { get; set; } = 1;
-    public string baseUrl = String.Empty;
 
     public List<string> Categories { 
         get { return categories; }

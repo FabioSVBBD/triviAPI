@@ -35,7 +35,7 @@ namespace QuizAPI.Controllers
 		[HttpGet]
 		public IActionResult getAllQuestions([FromQuery] QueryParam parameters)
 		{
-            parameters.baseUrl = Request.Host.Value + Request.Path;
+            UrlHelper.setBaseUrl(Request.Scheme, Request.Host.Value, Request.Path);
 			PaginationHandler _page = new PaginationHandler(_context.Categories, _context.Difficulties);
 
 			var questions = _context.Questions;
