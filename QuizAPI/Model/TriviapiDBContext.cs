@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
+using System.Text.Json;
+using QuizAPI.Utils;
 
 namespace QuizAPI.Model
 {
@@ -9,11 +11,13 @@ namespace QuizAPI.Model
     {
         public TriviapiDBContext()
         {
+
         }
 
         public TriviapiDBContext(DbContextOptions<TriviapiDBContext> options)
             : base(options)
         {
+            Console.WriteLine(JsonSerializer.Serialize(options));
         }
 
         public virtual DbSet<Category> Categories { get; set; } = null!;
@@ -25,13 +29,11 @@ namespace QuizAPI.Model
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
+    
             if (!optionsBuilder.IsConfigured)
             {
-                IConfiguration _configuration = new ConfigurationBuilder()
-                    .SetBasePath(Directory.GetCurrentDirectory())
-                    .AddJsonFile("appsettings.json")
-                    .Build();
-                string myDbConnection = _configuration.GetConnectionString("QuizDB");
+                var appSettings = AppSettings.instance();
+                string myDbConnection = appSettings.connectionString;
                 optionsBuilder.UseSqlServer(myDbConnection);
             }
         }
