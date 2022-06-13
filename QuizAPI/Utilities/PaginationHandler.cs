@@ -13,6 +13,7 @@ public class PaginationHandler
 
     private IQueryable<Category> categoryQS;
     private IQueryable<Difficulty> difficultyQS;
+    private TriviapiDBContext _context = new TriviapiDBContext();
 
     public class QuestionData
     {
@@ -20,13 +21,15 @@ public class PaginationHandler
         public string answer { get; set; }
         public string difficulty { get; set; }
         public string category { get; set; }
+        public List<string> tags { get; set; }
 
-        public QuestionData(String question, String answer, String category, String difficulty)
+        public QuestionData(String question, String answer, String category, String difficulty, List<string> tags)
         {
             this.question = question;
             this.answer = answer;
             this.difficulty = difficulty;
             this.category = category;
+            this.tags = tags;
         }
     }
 
@@ -40,9 +43,13 @@ public class PaginationHandler
     {
         IQueryable<Question> approvedQuerySet = questionQS.Where(ques => ques.Status.StatusName.ToLower() == "approved");
 
+        Question question = approvedQuerySet.First();
+
         approvedQuerySet.Skip((query.Page - 1) * this.pageSize).Take(pageSize).ToList().ForEach(
             x => results.Add(
-                new QuestionData(x.Question1, x.Answer, x.Category.CategoryName, x.Difficulty.DifficultyName)
+                new QuestionData(
+                    x.Question1, x.Answer, x.Category.CategoryName, x.Difficulty.DifficultyName, generateTags(x.QuestionId)
+             )
           )
         );
 
@@ -52,6 +59,24 @@ public class PaginationHandler
         back = page > 1 ? buildURL(query, false) : String.Empty;  
 
         return this;
+    }
+
+    private List<string> generateTags(int questionID)
+    {
+        List<string> ret = new();
+
+        var tagsQuerySet = _context.Tags;
+        var filteredQuestionTags = _context.QuestionTags.Where(x => x.QuestionId == questionID).ToList();
+        filteredQuestionTags.ForEach(x => {
+            Tag? foundTag = tagsQuerySet.Find(x.TagId);
+
+            if (foundTag != null)
+            {
+                ret.Add(foundTag.TagName);
+            }
+          }
+        );
+        return ret;
     }
 
     private string buildURL(QueryParam query, bool next)
