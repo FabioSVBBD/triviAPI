@@ -52,6 +52,8 @@ namespace QuizAPI.Model
                     .IsUnicode(false);
             });
 
+            modelBuilder.Entity<Category>().Navigation(e => e.Questions).AutoInclude();
+
             modelBuilder.Entity<Difficulty>(entity =>
             {
                 entity.ToTable("Difficulty");
@@ -111,24 +113,28 @@ namespace QuizAPI.Model
                     .HasConstraintName("FK_Question.StatusID");
             });
 
+            modelBuilder.Entity<Question>().Navigation(e => e.Status).AutoInclude();
+            modelBuilder.Entity<Question>().Navigation(e => e.Category).AutoInclude();
+            modelBuilder.Entity<Question>().Navigation(e => e.Difficulty).AutoInclude();
+
             modelBuilder.Entity<QuestionTag>(entity =>
             {
-                entity.HasNoKey();
-
                 entity.ToTable("QuestionTag");
+
+                entity.Property(e => e.QuestionTagId).HasColumnName("QuestionTagID");
 
                 entity.Property(e => e.QuestionId).HasColumnName("QuestionID");
 
                 entity.Property(e => e.TagId).HasColumnName("TagID");
 
                 entity.HasOne(d => d.Question)
-                    .WithMany()
+                    .WithMany(p => p.QuestionTags)
                     .HasForeignKey(d => d.QuestionId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_QuestionTag.QuestionID");
 
                 entity.HasOne(d => d.Tag)
-                    .WithMany()
+                    .WithMany(p => p.QuestionTags)
                     .HasForeignKey(d => d.TagId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_QuestionTag.TagID");

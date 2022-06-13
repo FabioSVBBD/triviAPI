@@ -7,49 +7,78 @@ namespace QuizAPI.Utils
 	{
 		TriviapiDBContext _context = new TriviapiDBContext();
 
-		public int getDifficulty(string difficultyName)
+		public bool questionExists(int id)
 		{
-			Difficulty? difficultyToGet = (from d in _context.Difficulties
-										   where d.DifficultyName == difficultyName
-										   select d).ToList().FirstOrDefault();
-
-			return difficultyToGet == null ? -1 : difficultyToGet.DifficultyId;
+			return _context.Questions.Find(id) != null;
 		}
 
 		public Difficulty? getDifficultyObject(string difficultyName)
 		{
-			Difficulty? difficultyToGet = (from d in _context.Difficulties
-										   where d.DifficultyName == difficultyName
-										   select d).ToList().FirstOrDefault();
-
-			return difficultyToGet;
+			return (from d in _context.Difficulties
+					where d.DifficultyName.ToLower() == difficultyName.ToLower()
+					select d).ToList().FirstOrDefault();
 		}
 
-		public int getCategory(string categoryName)
+		public Category? getCategoryObject(string categoryName)
 		{
-			Category? categoryToGet = (from c in _context.Categories
-									   where c.CategoryName == categoryName
-									   select c).ToList().FirstOrDefault();
-
-			return categoryToGet == null ? -1 : categoryToGet.CategoryId;
+			return (from c in _context.Categories
+					where c.CategoryName.ToLower() == categoryName.ToLower()
+					select c).ToList().FirstOrDefault();
 		}
 
-		public Category getCategoryObject(string categoryName)
+		public Status? getStatusByObject(string statusName)
 		{
-			Category? categoryToGet = (from c in _context.Categories
-									   where c.CategoryName == categoryName
-									   select c).ToList().FirstOrDefault();
-
-			return categoryToGet;
+			return (from s in _context.Statuses
+					where s.StatusName.ToLower() == statusName.ToLower()
+					select s).ToList().FirstOrDefault();
 		}
 
-		public int getStatus(string statusName)
+		public Tag? getTagObject(string tagName)
+        {
+			return (from t in _context.Tags
+					where t.TagName.ToLower() == tagName.ToLower()
+					select t).ToList().FirstOrDefault();
+		}
+
+		public Dictionary<String, List<String>> getInvalidDifficultyResponse()
+		{
+			return new() {
+				{ "message", new List<string>() { "Invalid Difficulty" } },
+				{ "values", _context.Difficulties.ToList().Select(d => d.DifficultyName).ToList() }
+			};
+		}
+
+		public Dictionary<String, List<String>> getInvalidCategoryResponse()
+		{
+			return new() {
+				{ "message", new List<string>() { "Invalid Category" } },
+				{ "values", _context.Categories.ToList().Select(c => c.CategoryName).ToList() }
+			};
+		}
+
+		public Dictionary<String, List<String>> getInvalidStatusResponse()
+		{
+			return new() {
+				{ "message", new List<string>() { "Invalid Status" } },
+				{ "values", _context.Statuses.ToList().Select(s => s.StatusName).ToList() }
+			};
+		}
+
+		public Dictionary<String, List<String>> getInvalidTagResponse()
+		{
+			return new() {
+				{ "message", new List<string>() { "Invalid Tag" } },
+				{ "values", _context.Tags.ToList().Select(t => t.TagName).ToList() }
+			};
+		}
+
+		public Status getStatusObject(string statusName)
 		{
 			Status? statusToGet = (from s in _context.Statuses
 								   where s.StatusName == statusName
 								   select s).ToList().FirstOrDefault();
 
-			return statusToGet == null ? -1 : statusToGet.StatusId;
+			return statusToGet;
 		}
 
 		public Status getStatusObject(string statusName)

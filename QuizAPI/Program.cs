@@ -13,25 +13,22 @@ builder.Services.AddSwaggerGen();
 var connectionString = builder.Configuration.GetConnectionString("QuizDB");
 builder.Services.AddDbContext<TriviapiDBContext>(x => x.UseSqlServer(connectionString));
 
+builder.Services.AddAWSLambdaHosting(LambdaEventSource.RestApi);
+
 builder.Services.AddControllers().AddJsonOptions(x =>
 								x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-	// possibly extract from condition
-	app.UseSwagger();
-	app.UseSwaggerUI();
-}
+
+// possibly extract from condition
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
 app.MapControllers();
-
-app.UseMiddleware<QuizAPI.Middleware.APIKeyMiddleware>();
 
 app.Run();
