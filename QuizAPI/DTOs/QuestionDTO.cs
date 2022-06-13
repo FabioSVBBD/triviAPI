@@ -35,9 +35,6 @@ namespace QuizAPI.DTOs
 			}
 
 			return new QuestionDTO(question.Question1, question.Answer, question.Status.StatusName, question.Difficulty.DifficultyName, question.Category.CategoryName, tags );
-
 		}
-
-
 	}
 }

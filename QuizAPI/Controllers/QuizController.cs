@@ -366,5 +366,32 @@ namespace QuizAPI.Controllers
                 return BadRequest("Failed To Connect to Database"); ;
             }
         }
-    }
+
+		[HttpDelete("{id}")]
+		public IActionResult deleteQuestion(int id)
+		{
+			Question? question = _context.Questions.Find(id);
+
+			if (question == null)
+			{
+				return NotFound();
+			}
+
+			var deletedStatus = _valueToIdUtil.getStatusByObject("deleted");
+			question.Status = deletedStatus;
+
+			try
+			{
+				_context.Questions.Update(question);
+				_context.SaveChanges();
+
+				return Ok(_context.Questions.Find(id));
+			}
+			catch (Exception e)
+			{
+				_ = e;
+				return BadRequest("Question probably exists or an error occurred in our side");
+			}
+		}
+	}
 }
