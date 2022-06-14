@@ -2,6 +2,8 @@
 using QuizAPI.Model;
 using QuizAPI.Utils;
 using QuizAPI.DTOs;
+using System.Text.Json;
+using QuizAPI.Utilities;
 
 namespace QuizAPI.Controllers
 {
@@ -13,24 +15,207 @@ namespace QuizAPI.Controllers
         ForeignKeyObjectsUtil _foreignKeyObjectsUtil = new ForeignKeyObjectsUtil();
         InvalidResponseUtil _invalidResponseUtil = new InvalidResponseUtil();
 
-        [HttpGet("question/{id}")]
-        public IActionResult testMe(int id)
-        {
-            Question? question = _context.Questions.Find(id);
 
-            if (question == null)
+
+		[HttpGet("{id}")]
+		public IActionResult getQuestionById(int id)
+		{
+			PaginationHandler _page = new PaginationHandler(_context.Categories, _context.Difficulties);
+			var question = _context.Questions.Where(question => question.QuestionId == id);
+
+			if (question.Count() == 0)
             {
-                return NotFound();
+				return NotFound();
+            }
+            else
+            {
+				var questionTbl = _page.paginateQuestions(question, new QueryParam());
+				return Ok(questionTbl);
+			}
+		}
+
+		[HttpGet]
+		public IActionResult getAllQuestions([FromQuery] QueryParam parameters)
+		{
+            // UrlHelper.setBaseUrl(Request.Scheme, Request.Host.Value, Request.Path);
+			PaginationHandler _page = new PaginationHandler(_context.Categories, _context.Difficulties);
+
+			var questions = _context.Questions;
+			var paginatedBody = _page.paginateQuestions(questions, parameters);
+
+			return paginatedBody.results.Count > 0 ? Ok(paginatedBody) : NotFound(paginatedBody);
+		}
+
+
+        [HttpGet("difficulties")]
+		public IActionResult getAllDifficulties()
+        {
+			var difficulties = _context.Difficulties.Select(diff => diff.DifficultyName );
+
+			if (difficulties.Count() == 0)
+            {
+				return NotFound();
             }
 
-            return Ok(question);
+			return Ok(difficulties);
         }
+
+		[HttpGet("categories")]
+		public IActionResult getallCategories()
+		{
+			var categories = _context.Categories.Select(c => c.CategoryName);
+
+			if (categories.Count() == 0)
+            {
+				return NotFound();
+            }
+
+			return Ok(categories);
+		}
+		
+        [HttpGet("statuses")]
+		public IActionResult getAllStatuses()
+        {
+			var statuses = _context.Statuses.Select(status => status.StatusName);
+
+
+			if (statuses.Count() == 0)
+            {
+				return NotFound();
+            }
+			return Ok(statuses);
+        }
+
+		[HttpGet("tags")]
+		public IActionResult getAllTags()
+        {
+			var tags = _context.Tags.Select(tag => tag.TagName);
+
+			if (tags.Count() == 0)
+            {
+				return NotFound();
+            }
+			return Ok(tags);
+        }
+
+        [HttpGet("tags/TagName")]
+		public IActionResult GetAllQuestionsByName(string TagName)
+        {
+			var tagID = _context.Tags.Where(tagTbl => tagTbl.TagName == TagName).Select(id => id.TagId).First();
+
+			var questionID = _context.QuestionTags.Where(qtagTbl => qtagTbl.TagId == tagID).Select(id => id.QuestionId).First();
+
+			var questions = _context.Questions.Where(tagTbl => tagTbl.QuestionId == questionID);
+
+			PaginationHandler pg = new PaginationHandler(_context.Categories, _context.Difficulties);
+
+			if (questions.Count()== 0)
+			{
+				return NotFound();
+			}
+            else
+            {
+				var questionTbl = pg.paginateQuestions(questions, new QueryParam());
+
+				return Ok(questionTbl);
+			}
+
+			
+		}
+
+		[HttpGet("categories/CategoryName")]
+		public IActionResult getQuestionsbyGategoryName(string categoryName)
+		{
+			var categoryTbl = _context.Categories.Where(category => category.CategoryName == categoryName);
+
+			if (categoryTbl.Count() == 0)
+            {
+				return NotFound();
+            }
+            else
+            {
+				var categoryID2 = categoryTbl.Select(id => id.CategoryId).First();
+            }
+			var questions = _context.Questions.Where(x => x.Category.CategoryName.ToLower() == categoryName.ToLower());
+
+			if (questions.Count() == 0)
+            {
+				return NotFound();
+            }
+            else
+            {
+				PaginationHandler pg = new PaginationHandler(_context.Categories, _context.Difficulties);
+				var questionsTbl = pg.paginateQuestions(questions, new QueryParam());
+				return Ok(questionsTbl);
+			}
+						
+		}
+
+
+		[HttpGet("difficulty/level")]
+		public IActionResult getQuestionsByDifficulty(string level)
+		{
+			var difficultyTbl = _context.Difficulties.Where(difficullyLevel => difficullyLevel.DifficultyName == level);
+
+			if (difficultyTbl.Count() == 0)
+            {
+				return NotFound();
+            }
+            else
+            {
+				var difficultyLevelID = difficultyTbl.Select(levelID => levelID.DifficultyId).First();
+			}
+			var questions = _context.Questions.Where(difficultyTbl => difficultyTbl.Difficulty.DifficultyName == level);
+
+			if (questions.Count() == 0)
+			{
+				return NotFound();
+			}
+            else
+            {
+				PaginationHandler pg = new PaginationHandler(_context.Categories, _context.Difficulties);
+				return Ok(pg.paginateQuestions(questions, new QueryParam()));
+			}
+
+			
+		}
+
+		[HttpGet("Status/statusCode")]
+		public IActionResult getQuestionsByStatusCode(string statusCode)
+        {
+			var statusTbl = _context.Statuses.Where(statusName => statusName.StatusName == statusCode);
+
+			if (statusTbl.Count() == 0)
+            {
+				return NotFound();
+            }
+            else
+            {
+				var statusID = statusTbl.Select(statusID => statusID.StatusId).First();
+            }
+
+
+			var questions = _context.Questions.Where(q => q.Status.StatusName == statusCode);
+
+			if (questions == null)
+            {
+				return NotFound();
+            }
+
+			PaginationHandler pg = new PaginationHandler(_context.Categories, _context.Difficulties);
+			
+
+			return Ok(pg.paginateQuestions(questions, new QueryParam()));
+			
+        }
+
+
+
 
         [HttpPatch("status/{id}")]
         public IActionResult updateStatus(int id, [FromBody] StatusDTO status)
         {
             Question? questionToChange = _context.Questions.Find(id);
-
             if (questionToChange == null)
             {
                 return NotFound();

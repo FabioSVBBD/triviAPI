@@ -4,6 +4,7 @@ namespace QuizAPI.DTOs
 {
 	public class QuestionDTO
 	{
+
 		private string? question;
 		private string? answer;
 		private string? difficulty;

@@ -53,5 +53,14 @@ namespace QuizAPI.Utils
 						tagName = t.TagName
 					}).ToList().Select(t => t.tagName).ToList();
 		}
+
+		public Status getStatusObject(string statusName)
+		{
+			Status? statusToGet = (from s in _context.Statuses
+								   where s.StatusName == statusName
+								   select s).ToList().FirstOrDefault();
+
+			return statusToGet;
+		}
 	}
 }
