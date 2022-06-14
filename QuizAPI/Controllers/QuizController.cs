@@ -14,8 +14,6 @@ namespace QuizAPI.Controllers
         ForeignKeyObjectsUtil _foreignKeyObjectsUtil = new ForeignKeyObjectsUtil();
         InvalidResponseUtil _invalidResponseUtil = new InvalidResponseUtil();
 
-
-
 		[HttpGet("{id}")]
 		public IActionResult getQuestionById(int id)
 		{
@@ -36,7 +34,6 @@ namespace QuizAPI.Controllers
 		[HttpGet]
 		public IActionResult getAllQuestions([FromQuery] QueryParam parameters)
 		{
-            // UrlHelper.setBaseUrl(Request.Scheme, Request.Host.Value, Request.Path);
 			PaginationHandler _page = new PaginationHandler(_context.Categories, _context.Difficulties);
 
 			var questions = _context.Questions;
@@ -76,7 +73,6 @@ namespace QuizAPI.Controllers
 		public IActionResult getAllStatuses()
         {
 			var statuses = _context.Statuses.Select(status => status.StatusName);
-
 
 			if (statuses.Count() == 0)
             {
@@ -118,8 +114,6 @@ namespace QuizAPI.Controllers
 
 				return Ok(questionTbl);
 			}
-
-			
 		}
 
 		[HttpGet("categories/CategoryName")]
@@ -147,7 +141,6 @@ namespace QuizAPI.Controllers
 				var questionsTbl = pg.paginateQuestions(questions, new QueryParam());
 				return Ok(questionsTbl);
 			}
-						
 		}
 
 
@@ -175,8 +168,6 @@ namespace QuizAPI.Controllers
 				PaginationHandler pg = new PaginationHandler(_context.Categories, _context.Difficulties);
 				return Ok(pg.paginateQuestions(questions, new QueryParam()));
 			}
-
-			
 		}
 
 		[HttpGet("Status/statusCode")]
@@ -205,7 +196,6 @@ namespace QuizAPI.Controllers
 			
 
 			return Ok(pg.paginateQuestions(questions, new QueryParam()));
-			
         }
 
 
@@ -246,7 +236,6 @@ namespace QuizAPI.Controllers
             catch (Exception e)
             {
                 _ = e;
-                Console.WriteLine(e.Message);
                 return BadRequest("Invalid Values");
             }
         }
@@ -353,7 +342,6 @@ namespace QuizAPI.Controllers
             catch (Exception e)
             {
                 _ = e;
-                Console.WriteLine(e);
                 return BadRequest("Invalid Values");
             }
         }
@@ -459,7 +447,7 @@ namespace QuizAPI.Controllers
             catch (Exception e)
             {
                 _ = e;
-                return BadRequest("Question probably exists or an error occurred in our side");
+                return BadRequest("An error occurred on our side");
             }
         }
 
@@ -542,8 +530,7 @@ namespace QuizAPI.Controllers
             catch (Exception e)
             {
                 _ = e;
-                Console.WriteLine(e);
-                return BadRequest("Failed To Connect to Database"); ;
+                return BadRequest("An error occured on our side"); ;
             }
         }
 
@@ -575,7 +562,7 @@ namespace QuizAPI.Controllers
 			catch (Exception e)
 			{
 				_ = e;
-				return BadRequest("Question probably exists or an error occurred in our side");
+				return BadRequest("Question already deleted");
 			}
 		}
 	}
