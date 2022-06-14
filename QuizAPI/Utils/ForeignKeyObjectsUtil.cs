@@ -1,10 +1,12 @@
 ﻿using QuizAPI.Model;
 using System.Linq;
+using QuizAPI.DTOs;
 
 namespace QuizAPI.Utils
 {
-	public class ValueToIdUtil
+	public class ForeignKeyObjectsUtil
 	{
+
 		TriviapiDBContext _context = new TriviapiDBContext();
 
 		public bool questionExists(int id)
@@ -40,36 +42,16 @@ namespace QuizAPI.Utils
 					select t).ToList().FirstOrDefault();
 		}
 
-		public Dictionary<String, List<String>> getInvalidDifficultyResponse()
-		{
-			return new() {
-				{ "message", new List<string>() { "Invalid Difficulty" } },
-				{ "values", _context.Difficulties.ToList().Select(d => d.DifficultyName).ToList() }
-			};
-		}
-
-		public Dictionary<String, List<String>> getInvalidCategoryResponse()
-		{
-			return new() {
-				{ "message", new List<string>() { "Invalid Category" } },
-				{ "values", _context.Categories.ToList().Select(c => c.CategoryName).ToList() }
-			};
-		}
-
-		public Dictionary<String, List<String>> getInvalidStatusResponse()
-		{
-			return new() {
-				{ "message", new List<string>() { "Invalid Status" } },
-				{ "values", _context.Statuses.ToList().Select(s => s.StatusName).ToList() }
-			};
-		}
-
-		public Dictionary<String, List<String>> getInvalidTagResponse()
-		{
-			return new() {
-				{ "message", new List<string>() { "Invalid Tag" } },
-				{ "values", _context.Tags.ToList().Select(t => t.TagName).ToList() }
-			};
+		public List<string> getTagsForQuestion(int questionId)
+        {
+			return (from t in _context.Tags
+					join qt in _context.QuestionTags
+					on t.TagId equals qt.TagId
+					where qt.QuestionId == questionId
+					select new
+					{
+						tagName = t.TagName
+					}).ToList().Select(t => t.tagName).ToList();
 		}
 
 		public Status getStatusObject(string statusName)
