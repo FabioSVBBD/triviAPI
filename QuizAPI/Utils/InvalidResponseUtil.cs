@@ -2,7 +2,7 @@
 using System.Linq;
 using QuizAPI.DTOs;
 
-    public sealed class InvalidResponseUtil
+    public class InvalidResponseUtil
     {
 
 	TriviapiDBContext _context = new TriviapiDBContext();
