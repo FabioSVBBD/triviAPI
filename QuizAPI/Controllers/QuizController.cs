@@ -3,7 +3,6 @@ using QuizAPI.Model;
 using QuizAPI.Utils;
 using QuizAPI.DTOs;
 using System.Text.Json;
-using QuizAPI.Utilities;
 
 namespace QuizAPI.Controllers
 {
