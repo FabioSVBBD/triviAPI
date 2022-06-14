@@ -44,9 +44,6 @@
   </ol>
 </details>
 
-
-
-<!-- ABOUT THE PROJECT -->
 ## About The Project
 
 Quiz API is a project that manages quiz questions and quiz games. You can create, read, update and delete quiz questions for anyone around the world to use!
