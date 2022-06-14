@@ -2,106 +2,102 @@
 using QuizAPI.DTOs;
 
 namespace QuizAPI.Utils;
-
 public class PaginationHandler
 {
     public int count { get; set; } = 0;
     public int page { get; set; } = 1;
     public int pageSize { get; set; } = 20;
-    public string next { get; set; } = String.Empty;
-    public string back { get; set; } = String.Empty;
-    public List<QuestionData> results { get; set; } = new List<QuestionData>();
+    public string next { get; set; } = string.Empty;
+    public string back { get; set; } = string.Empty;
+    public List<QuestionDTO> results { get; set; } = new List<QuestionDTO>();
 
-    private IQueryable<Category> categoryQS;
-    private IQueryable<Difficulty> difficultyQS;
+
+
     private TriviapiDBContext _context = new TriviapiDBContext();
 
-    public class QuestionData
+
+
+    public PaginationHandler paginateQuestions(IQueryable<Question> questionQS, FilterQuery query)
     {
-        public string question { get; set; }
-        public string answer { get; set; }
-        public string difficulty { get; set; }
-        public string category { get; set; }
-        public List<string> tags { get; set; }
-
-        public QuestionData(String question, String answer, String category, String difficulty, List<string> tags)
-        {
-            this.question = question;
-            this.answer = answer;
-            this.difficulty = difficulty;
-            this.category = category;
-            this.tags = tags;
-        }
-    }
-
-    public PaginationHandler(IQueryable<Category> categoryQS, IQueryable<Difficulty> difficultyQS)
-    {
-        this.categoryQS = categoryQS;
-        this.difficultyQS = difficultyQS;
-    }
-
-    public PaginationHandler paginateQuestions(IQueryable<Question> questionQS, QueryParam query)
-
-    {
-
-        IQueryable<Question> approvedQuerySet = questionQS.Where(ques => ques.Status.StatusName.ToLower() == "approved");
-
-        approvedQuerySet.Skip((query.Page - 1) * this.pageSize).Take(pageSize).ToList().ForEach(
-            x => results.Add(
-                new QuestionData(
-                    x.Question1, x.Answer, x.Category.CategoryName, x.Difficulty.DifficultyName, generateTags(x.QuestionId)
-             )
-          )
+        questionQS.Skip((query.queryValidator.page - 1) * pageSize).Take(pageSize).ToList().ForEach(
+        x => results.Add(
+        new QuestionDTO(
+        x.Question1, x.Answer, x.Difficulty.DifficultyName, x.Category.CategoryName, generateTags(x.QuestionId).ToArray()
+        )
+        )
         );
 
-        page = query.Page;
-        count = approvedQuerySet.Count();
-        next = count - pageSize * page > 0 ? buildURL(query, true) : String.Empty;
-        back = page > 1 ? buildURL(query, false) : String.Empty;  
+
+
+        page = query.queryValidator.page;
+        count = questionQS.Count();
+        next = count - pageSize * page > 0 ? buildURL(query, true) : string.Empty;
+        back = page > 1 ? buildURL(query, false) : string.Empty;
+
+
 
         return this;
     }
+
+
 
     private List<string> generateTags(int questionID)
     {
         List<string> ret = new();
 
+
+
         var tagsQuerySet = _context.Tags;
         var filteredQuestionTags = _context.QuestionTags.Where(x => x.QuestionId == questionID).ToList();
-        filteredQuestionTags.ForEach(x => {
+        filteredQuestionTags.ForEach(x =>
+        {
             Tag? foundTag = tagsQuerySet.Find(x.TagId);
+
+
 
             if (foundTag != null)
             {
                 ret.Add(foundTag.TagName);
             }
-          }
+        }
         );
         return ret;
     }
 
-    private string buildURL(QueryParam query, bool next)
+
+
+    private string buildURL(FilterQuery query, bool next)
     {
-        string ret = String.Empty;
+        string ret = string.Empty;
         int pageModifier = next ? 1 : -1;
         List<string> paramList = new List<string>();
 
-        paramList.Add(string.Format("Page={0}", query.Page + pageModifier));
-        
-        query.Categories.ForEach(
-            cat => paramList.Add(
-               string.Format("Categories={0}", cat) 
-           )
+
+
+        paramList.Add(string.Format("Page={0}", query.queryValidator.page + pageModifier));
+
+
+
+        query.queryValidator.categories.ForEach(
+        cat => paramList.Add(
+        string.Format("Categories={0}", cat)
+        )
         );
 
-        query.Difficulties.ForEach(
-            diff => paramList.Add(
-                string.Format("Difficulties={0}", diff)
-           )
+
+
+        query.queryValidator.difficulties.ForEach(
+        diff => paramList.Add(
+        string.Format("Difficulties={0}", diff)
+        )
         );
 
-        string parameters = paramList.Count > 0 ? "?" + String.Join("&", paramList) : String.Empty;
 
-        return $"{UrlHelper.baseURL}{parameters}";
+
+        string parameters = paramList.Count > 0 ? "?" + string.Join("&", paramList) : string.Empty;
+
+
+
+        return $"{query.CurrentUrl}{parameters}";
     }
 }
