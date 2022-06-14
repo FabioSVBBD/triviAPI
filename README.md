@@ -1,11 +1,11 @@
-# Grad Project - System Design & Design Patterns
+## Grad Project - System Design & Design Patterns
 
 <div id="top"></div>
 
 <br />
 <div align="center">
 
-  <h1 align="center">TriviAPI</h1>
+  <img src='https://user-images.githubusercontent.com/97596644/173635650-76af8e56-b502-4772-a1d7-07352c989959.png' align='center' width='500px' />
 
   <p align="center">
     A Quiz API for those that know too much
@@ -52,6 +52,7 @@ Quiz API is a project that manages quiz questions and quiz games. You can create
 ###### Built Using _.NET Core_ and Deployed using _AWS_
 
 <br />
+
 ## Getting Started
 
 Follow the steps below on how to run the project.
