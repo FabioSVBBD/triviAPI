@@ -35,4 +35,24 @@ using QuizAPI.DTOs;
 		{
 			return new() { { "message", "An issue occurred setting setting status to deleted. We have some maintenance to do." } };
 		}
+
+		public Dictionary<String, String> getGenericBadRequestResponse()
+		{
+			return new() { { "message", "An error occurred on our side" } };
+		}
+
+		public Dictionary<String, String> getInvalidValuesResponse()
+		{
+			return new() { { "message", "Invalid Values" } };
+		}
+
+		public Dictionary<String, String> getMissingSomeFieldsResponse()
+		{
+			return new() { { "message", "You are missing some fields" } };
+		}
+
+		public Dictionary<String, String> getDeleteFailedResponse()
+		{
+			return new() { { "message", "Question does not exist" } };
+		}
 	}
