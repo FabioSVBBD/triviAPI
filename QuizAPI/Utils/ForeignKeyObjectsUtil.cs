@@ -47,7 +47,7 @@ namespace QuizAPI.Utils
 					}).ToList().Select(t => t.tagName).ToList();
 		}
 
-		public Status getStatus(string statusName)
+		public Status? getStatus(string statusName)
 		{
 			return (from s in _context.Statuses
 					where s.StatusName.ToLower() == statusName.ToLower()
