@@ -6,7 +6,7 @@ using System.Text.Json;
 
 namespace QuizAPI.Controllers
 {
-    [Route("api")]
+    [Route("api/v1")]
     [ApiController]
     public class QuizController : ControllerBase
     {
@@ -491,6 +491,15 @@ namespace QuizAPI.Controllers
             newQuestion.Status = status;
             newQuestion.StatusId = status.StatusId;
 
+						foreach (string tag in newQuestionDetails.Tags)
+						{
+							Tag? tagObject = _foreignKeyObjectsUtil.getTag(tag);
+							if (tagObject == null)
+							{
+									return BadRequest(_invalidResponseUtil.getInvalidTagResponse());
+							}
+						}
+
             try
             {
                 _context.Questions.Update(newQuestion);
@@ -509,7 +518,7 @@ namespace QuizAPI.Controllers
                             Tag? tagObject = _foreignKeyObjectsUtil.getTag(tag);
                             if (tagObject == null)
                             {
-                                return BadRequest();
+                                return BadRequest(_invalidResponseUtil.getInvalidTagResponse());
                             }
                             tagsToAdd.TagId = tagObject.TagId;
                             tagsToAdd.Tag = tagObject;
