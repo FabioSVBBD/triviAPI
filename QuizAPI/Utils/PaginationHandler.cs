@@ -1,6 +1,7 @@
 ﻿using QuizAPI.Model;
 using QuizAPI.DTOs;
-using QuizAPI.Utils;
+
+namespace QuizAPI.Utils;
 
 public class PaginationHandler
 {
