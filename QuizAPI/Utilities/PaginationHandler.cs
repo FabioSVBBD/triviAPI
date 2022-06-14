@@ -40,7 +40,9 @@ public class PaginationHandler
     }
 
     public PaginationHandler paginateQuestions(IQueryable<Question> questionQS, QueryParam query)
+
     {
+
         IQueryable<Question> approvedQuerySet = questionQS.Where(ques => ques.Status.StatusName.ToLower() == "approved");
 
         Question question = approvedQuerySet.First();
@@ -57,6 +59,11 @@ public class PaginationHandler
         count = approvedQuerySet.Count();
         next = count - pageSize * page > 0 ? buildURL(query, true) : String.Empty;
         back = page > 1 ? buildURL(query, false) : String.Empty;  
+
+        if (this == null)
+        {
+            Console.WriteLine("Hello World");
+        }
 
         return this;
     }
