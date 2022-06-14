@@ -9,16 +9,10 @@ namespace QuizAPI.Model
 {
     public partial class TriviapiDBContext : DbContext
     {
-        public TriviapiDBContext()
-        {
-
-        }
+        public TriviapiDBContext(){}
 
         public TriviapiDBContext(DbContextOptions<TriviapiDBContext> options)
-            : base(options)
-        {
-            Console.WriteLine(JsonSerializer.Serialize(options));
-        }
+            : base(options){}
 
         public virtual DbSet<Category> Categories { get; set; } = null!;
         public virtual DbSet<Difficulty> Difficulties { get; set; } = null!;
@@ -29,7 +23,6 @@ namespace QuizAPI.Model
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-    
             if (!optionsBuilder.IsConfigured)
             {
                 var appSettings = AppSettings.instance();

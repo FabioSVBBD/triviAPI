@@ -1,7 +1,8 @@
 ﻿using QuizAPI.Model;
 using QuizAPI.DTOs;
-using QuizAPI.Utils;
-namespace QuizAPI.Utilities;
+
+namespace QuizAPI.Utils;
+
 public class PaginationHandler
 {
     public int count { get; set; } = 0;
@@ -45,8 +46,6 @@ public class PaginationHandler
 
         IQueryable<Question> approvedQuerySet = questionQS.Where(ques => ques.Status.StatusName.ToLower() == "approved");
 
-        Question question = approvedQuerySet.First();
-
         approvedQuerySet.Skip((query.Page - 1) * this.pageSize).Take(pageSize).ToList().ForEach(
             x => results.Add(
                 new QuestionData(
@@ -59,11 +58,6 @@ public class PaginationHandler
         count = approvedQuerySet.Count();
         next = count - pageSize * page > 0 ? buildURL(query, true) : String.Empty;
         back = page > 1 ? buildURL(query, false) : String.Empty;  
-
-        if (this == null)
-        {
-            Console.WriteLine("Hello World");
-        }
 
         return this;
     }

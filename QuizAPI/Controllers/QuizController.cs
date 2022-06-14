@@ -14,9 +14,8 @@ namespace QuizAPI.Controllers
         ForeignKeyObjectsUtil _foreignKeyObjectsUtil = new ForeignKeyObjectsUtil();
         InvalidResponseUtil _invalidResponseUtil = new InvalidResponseUtil();
 
+		[HttpGet("question/{id}")]
 
-
-		[HttpGet("{id}")]
 		public IActionResult getQuestionById(int id)
 		{
 			PaginationHandler _page = new PaginationHandler(_context.Categories, _context.Difficulties);
@@ -33,10 +32,9 @@ namespace QuizAPI.Controllers
 			}
 		}
 
-		[HttpGet]
+		[HttpGet("questions")]
 		public IActionResult getAllQuestions([FromQuery] QueryParam parameters)
 		{
-            // UrlHelper.setBaseUrl(Request.Scheme, Request.Host.Value, Request.Path);
 			PaginationHandler _page = new PaginationHandler(_context.Categories, _context.Difficulties);
 
 			var questions = _context.Questions;
@@ -77,7 +75,6 @@ namespace QuizAPI.Controllers
         {
 			var statuses = _context.Statuses.Select(status => status.StatusName);
 
-
 			if (statuses.Count() == 0)
             {
 				return NotFound();
@@ -97,7 +94,7 @@ namespace QuizAPI.Controllers
 			return Ok(tags);
         }
 
-        [HttpGet("tags/TagName")]
+        [HttpGet("questions/tags")]
 		public IActionResult GetAllQuestionsByName(string TagName)
         {
 			var tagID = _context.Tags.Where(tagTbl => tagTbl.TagName == TagName).Select(id => id.TagId).First();
@@ -118,11 +115,9 @@ namespace QuizAPI.Controllers
 
 				return Ok(questionTbl);
 			}
-
-			
 		}
 
-		[HttpGet("categories/CategoryName")]
+		[HttpGet("questions/category")]
 		public IActionResult getQuestionsbyGategoryName(string categoryName)
 		{
 			var categoryTbl = _context.Categories.Where(category => category.CategoryName == categoryName);
@@ -147,11 +142,10 @@ namespace QuizAPI.Controllers
 				var questionsTbl = pg.paginateQuestions(questions, new QueryParam());
 				return Ok(questionsTbl);
 			}
-						
 		}
 
 
-		[HttpGet("difficulty/level")]
+		[HttpGet("questions/difficulty")]
 		public IActionResult getQuestionsByDifficulty(string level)
 		{
 			var difficultyTbl = _context.Difficulties.Where(difficullyLevel => difficullyLevel.DifficultyName == level);
@@ -175,43 +169,35 @@ namespace QuizAPI.Controllers
 				PaginationHandler pg = new PaginationHandler(_context.Categories, _context.Difficulties);
 				return Ok(pg.paginateQuestions(questions, new QueryParam()));
 			}
-
-			
 		}
 
-		[HttpGet("Status/statusCode")]
-		public IActionResult getQuestionsByStatusCode(string statusCode)
+		[HttpGet("questions/status")]
+		public IActionResult getQuestionsByStatusCode(StatusDTO statusCode)
         {
-			var statusTbl = _context.Statuses.Where(statusName => statusName.StatusName == statusCode);
+            Status status = _foreignKeyObjectsUtil.getStatus(statusCode.Status);
 
-			if (statusTbl.Count() == 0)
+			if (status == null)
             {
-				return NotFound();
-            }
-            else
-            {
-				var statusID = statusTbl.Select(statusID => statusID.StatusId).First();
+				return NotFound(_invalidResponseUtil.getInvalidStatusResponse());
             }
 
-
-			var questions = _context.Questions.Where(q => q.Status.StatusName == statusCode);
+			var questions = _context.Questions.Where(q => q.StatusId == status.StatusId);
 
 			if (questions == null)
             {
-				return NotFound();
+				return NotFound($"No questions have the status code {status.StatusName}");
             }
 
 			PaginationHandler pg = new PaginationHandler(_context.Categories, _context.Difficulties);
 			
 
 			return Ok(pg.paginateQuestions(questions, new QueryParam()));
-			
         }
 
 
 
 
-        [HttpPatch("status/{id}")]
+        [HttpPatch("question/status/{id}")]
         public IActionResult updateStatus(int id, [FromBody] StatusDTO status)
         {
             Question? questionToChange = _context.Questions.Find(id);
@@ -223,7 +209,7 @@ namespace QuizAPI.Controllers
             if (!string.IsNullOrEmpty(status.Status))
             {
 
-                Status? statusToAdd = _foreignKeyObjectsUtil.getStatusByObject(status.Status);
+                Status? statusToAdd = _foreignKeyObjectsUtil.getStatus(status.Status);
 
                 if (statusToAdd == null)
                 {
@@ -246,7 +232,6 @@ namespace QuizAPI.Controllers
             catch (Exception e)
             {
                 _ = e;
-                Console.WriteLine(e.Message);
                 return BadRequest("Invalid Values");
             }
         }
@@ -273,7 +258,7 @@ namespace QuizAPI.Controllers
 
             if (!string.IsNullOrEmpty(questionPatches.Difficulty))
             {
-                Difficulty? difficultyToAdd = _foreignKeyObjectsUtil.getDifficultyObject(questionPatches.Difficulty);
+                Difficulty? difficultyToAdd = _foreignKeyObjectsUtil.getDifficulty(questionPatches.Difficulty);
                 if (difficultyToAdd == null)
                 {
                     return BadRequest(_invalidResponseUtil.getInvalidDifficultyResponse());
@@ -288,7 +273,7 @@ namespace QuizAPI.Controllers
 
             if (!string.IsNullOrEmpty(questionPatches.Category))
             {
-                Category? categoryToAdd = _foreignKeyObjectsUtil.getCategoryObject(questionPatches.Category);
+                Category? categoryToAdd = _foreignKeyObjectsUtil.getCategory(questionPatches.Category);
                 if (categoryToAdd == null)
                 {
                     return BadRequest(_invalidResponseUtil.getInvalidCategoryResponse());
@@ -307,7 +292,7 @@ namespace QuizAPI.Controllers
                 {
                     foreach (string tag in questionPatches.Tags)
                     {
-                        Tag? tagObject = _foreignKeyObjectsUtil.getTagObject(tag);
+                        Tag? tagObject = _foreignKeyObjectsUtil.getTag(tag);
                         QuestionTag tagsToAdd = new();
                         if (tagObject == null)
                         {
@@ -327,7 +312,7 @@ namespace QuizAPI.Controllers
                 }
             }
 
-            Status? pending = _foreignKeyObjectsUtil.getStatusByObject("pending");
+            Status? pending = _foreignKeyObjectsUtil.getStatus("pending");
 
 			if (pending == null) {
 				return StatusCode(500, _invalidResponseUtil.getPendingFailResponse());
@@ -353,7 +338,6 @@ namespace QuizAPI.Controllers
             catch (Exception e)
             {
                 _ = e;
-                Console.WriteLine(e);
                 return BadRequest("Invalid Values");
             }
         }
@@ -380,7 +364,7 @@ namespace QuizAPI.Controllers
             question.Question1 = updatedQuestion.Question;
             question.Answer = updatedQuestion.Answer;
 
-            Difficulty? fetchedDifficulty = _foreignKeyObjectsUtil.getDifficultyObject(updatedQuestion.Difficulty);
+            Difficulty? fetchedDifficulty = _foreignKeyObjectsUtil.getDifficulty(updatedQuestion.Difficulty);
 
             if (fetchedDifficulty == null)
             {
@@ -392,7 +376,7 @@ namespace QuizAPI.Controllers
                 question.DifficultyId = question.Difficulty.DifficultyId;
                 fetchedDifficulty.Questions.Add(question);
             }
-            Category? fetchedCategory = _foreignKeyObjectsUtil.getCategoryObject(updatedQuestion.Category);
+            Category? fetchedCategory = _foreignKeyObjectsUtil.getCategory(updatedQuestion.Category);
 
             if (fetchedCategory == null)
             {
@@ -413,7 +397,7 @@ namespace QuizAPI.Controllers
 
                 foreach (string tag in updatedQuestion.Tags)
                 {
-                    Tag? tagObject = _foreignKeyObjectsUtil.getTagObject(tag);
+                    Tag? tagObject = _foreignKeyObjectsUtil.getTag(tag);
                     if (tagObject == null)
                     {
                         return BadRequest(_invalidResponseUtil.getInvalidTagResponse());
@@ -432,7 +416,7 @@ namespace QuizAPI.Controllers
                 };
             }
 
-            Status? pending = _foreignKeyObjectsUtil.getStatusByObject("pending");
+            Status? pending = _foreignKeyObjectsUtil.getStatus("pending");
 
             if (pending == null)
             {
@@ -459,7 +443,7 @@ namespace QuizAPI.Controllers
             catch (Exception e)
             {
                 _ = e;
-                return BadRequest("Question probably exists or an error occurred in our side");
+                return BadRequest("An error occurred on our side");
             }
         }
 
@@ -481,7 +465,7 @@ namespace QuizAPI.Controllers
             newQuestion.Question1 = newQuestionDetails.Question;
             newQuestion.Answer = newQuestionDetails.Answer;
 
-            var category = _foreignKeyObjectsUtil.getCategoryObject(newQuestionDetails.Category);
+            var category = _foreignKeyObjectsUtil.getCategory(newQuestionDetails.Category);
             if (category == null)
             {
                 return BadRequest("Category does not exist");
@@ -490,7 +474,7 @@ namespace QuizAPI.Controllers
             newQuestion.Category = category;
             newQuestion.CategoryId = category.CategoryId;
 
-            var difficulty = _foreignKeyObjectsUtil.getDifficultyObject(newQuestionDetails.Difficulty);
+            var difficulty = _foreignKeyObjectsUtil.getDifficulty(newQuestionDetails.Difficulty);
             if (difficulty == null)
             {
                 return BadRequest("Difficulty does not exist");
@@ -498,7 +482,7 @@ namespace QuizAPI.Controllers
             newQuestion.Difficulty = difficulty;
             newQuestion.DifficultyId = difficulty.DifficultyId;
 
-            var status = _foreignKeyObjectsUtil.getStatusByObject("pending");
+            var status = _foreignKeyObjectsUtil.getStatus("pending");
 
             if (status == null)
             {
@@ -522,7 +506,7 @@ namespace QuizAPI.Controllers
                             tagsToAdd.QuestionId = newQuestion.QuestionId;
                             tagsToAdd.Question = newQuestion;
 
-                            Tag? tagObject = _foreignKeyObjectsUtil.getTagObject(tag);
+                            Tag? tagObject = _foreignKeyObjectsUtil.getTag(tag);
                             if (tagObject == null)
                             {
                                 return BadRequest();
@@ -542,8 +526,7 @@ namespace QuizAPI.Controllers
             catch (Exception e)
             {
                 _ = e;
-                Console.WriteLine(e);
-                return BadRequest("Failed To Connect to Database"); ;
+                return BadRequest("An error occured on our side"); ;
             }
         }
 
@@ -557,7 +540,7 @@ namespace QuizAPI.Controllers
 				return NotFound();
 			}
 
-			var deletedStatus = _foreignKeyObjectsUtil.getStatusByObject("deleted");
+			var deletedStatus = _foreignKeyObjectsUtil.getStatus("deleted");
 
 			if (deletedStatus == null) {
 				return StatusCode(500, _invalidResponseUtil.getDeletedFailResponse());
@@ -575,7 +558,7 @@ namespace QuizAPI.Controllers
 			catch (Exception e)
 			{
 				_ = e;
-				return BadRequest("Question probably exists or an error occurred in our side");
+				return BadRequest("Question already deleted");
 			}
 		}
 	}
