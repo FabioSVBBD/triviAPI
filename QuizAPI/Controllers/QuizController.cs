@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using QuizAPI.Model;
 using QuizAPI.Utils;
-using QuizAPI.Utilities;
 using QuizAPI.DTOs;
 using System.Text.Json;
+using QuizAPI.Validation;
 
 namespace QuizAPI.Controllers
 {
@@ -20,30 +20,33 @@ namespace QuizAPI.Controllers
 		[HttpGet("{id}")]
 		public IActionResult getQuestionById(int id)
 		{
-			PaginationHandler _page = new PaginationHandler(_context.Categories, _context.Difficulties);
-			var question = _context.Questions.Where(question => question.QuestionId == id);
+            //PaginationHandler _page = new PaginationHandler(_context.Categories, _context.Difficulties);
+            //var question = _context.Questions.Where(question => question.QuestionId == id);
 
-			if (question.Count() == 0)
-            {
-				return NotFound();
-            }
-            else
-            {
-				var questionTbl = _page.paginateQuestions(question, new QueryParam());
-				return Ok(questionTbl);
-			}
+            //if (question.Count() == 0)
+            //         {
+            //	return NotFound();
+            //         }
+            //         else
+            //         {
+            //	var questionTbl = _page.paginateQuestions(question, new QueryParam());
+            //	return Ok(questionTbl);
+            //}
+
+            return Ok();
 		}
 
 		[HttpGet]
 		public IActionResult getAllQuestions([FromQuery] QueryParam parameters)
 		{
-            UrlHelper.setBaseUrl(Request.Scheme, Request.Host.Value, Request.Path);
-			PaginationHandler _page = new PaginationHandler(_context.Categories, _context.Difficulties);
+            QueryValidator queryValidator = new QueryValidator(parameters);
+            if (queryValidator.isValid())
+            {
+                var currentData = queryValidator.data(Request);
+                return Ok(currentData.byAll());
+            }
 
-			var questions = _context.Questions;
-			var paginatedBody = _page.paginateQuestions(questions, parameters);
-
-			return paginatedBody.results.Count > 0 ? Ok(paginatedBody) : NotFound(paginatedBody);
+            return BadRequest(queryValidator.validationErrors());
 		}
 
 
@@ -101,112 +104,106 @@ namespace QuizAPI.Controllers
         [HttpGet("tags/TagName")]
 		public IActionResult GetAllQuestionsByName(string TagName)
         {
-			var tagID = _context.Tags.Where(tagTbl => tagTbl.TagName == TagName).Select(id => id.TagId).First();
+            QueryParam qp = new QueryParam();
+            qp.Tags.Add(TagName);
 
-			var questionID = _context.QuestionTags.Where(qtagTbl => qtagTbl.TagId == tagID).Select(id => id.QuestionId).First();
-
-			var questions = _context.Questions.Where(tagTbl => tagTbl.QuestionId == questionID);
-
-			PaginationHandler pg = new PaginationHandler(_context.Categories, _context.Difficulties);
-
-			if (questions.Count()== 0)
-			{
-				return NotFound();
-			}
-            else
+            QueryValidator qv = new QueryValidator(qp);
+            if (qv.isValid())
             {
-				var questionTbl = pg.paginateQuestions(questions, new QueryParam());
+                var currentData = qv.data(Request);
+                return /*currentData.byAll*/ Ok();
+            }
 
-				return Ok(questionTbl);
-			}
-
-			
-		}
+            return BadRequest(qv.validationErrors());
+        }
 
 		[HttpGet("categories/CategoryName")]
 		public IActionResult getQuestionsbyGategoryName(string categoryName)
 		{
-			var categoryTbl = _context.Categories.Where(category => category.CategoryName == categoryName);
+            //var categoryTbl = _context.Categories.Where(category => category.CategoryName == categoryName);
 
-			if (categoryTbl.Count() == 0)
-            {
-				return NotFound();
-            }
-            else
-            {
-				var categoryID2 = categoryTbl.Select(id => id.CategoryId).First();
-            }
-			var questions = _context.Questions.Where(x => x.Category.CategoryName.ToLower() == categoryName.ToLower());
+            //if (categoryTbl.Count() == 0)
+            //         {
+            //	return NotFound();
+            //         }
+            //         else
+            //         {
+            //	var categoryID2 = categoryTbl.Select(id => id.CategoryId).First();
+            //         }
+            //var questions = _context.Questions.Where(x => x.Category.CategoryName.ToLower() == categoryName.ToLower());
 
-			if (questions.Count() == 0)
-            {
-				return NotFound();
-            }
-            else
-            {
-				PaginationHandler pg = new PaginationHandler(_context.Categories, _context.Difficulties);
-				var questionsTbl = pg.paginateQuestions(questions, new QueryParam());
-				return Ok(questionsTbl);
-			}
-						
-		}
+            //if (questions.Count() == 0)
+            //         {
+            //	return NotFound();
+            //         }
+            //         else
+            //         {
+            //	PaginationHandler pg = new PaginationHandler(_context.Categories, _context.Difficulties);
+            //	var questionsTbl = pg.paginateQuestions(questions, new QueryParam());
+            //	return Ok(questionsTbl);
+            //}
+            return Ok();
+        }
 
 
 		[HttpGet("difficulty/level")]
 		public IActionResult getQuestionsByDifficulty(string level)
 		{
-			var difficultyTbl = _context.Difficulties.Where(difficullyLevel => difficullyLevel.DifficultyName == level);
+			//var difficultyTbl = _context.Difficulties.Where(difficullyLevel => difficullyLevel.DifficultyName == level);
 
-			if (difficultyTbl.Count() == 0)
-            {
-				return NotFound();
-            }
-            else
-            {
-				var difficultyLevelID = difficultyTbl.Select(levelID => levelID.DifficultyId).First();
-			}
-			var questions = _context.Questions.Where(difficultyTbl => difficultyTbl.Difficulty.DifficultyName == level);
+			//if (difficultyTbl.Count() == 0)
+   //         {
+			//	return NotFound();
+   //         }
+   //         else
+   //         {
+			//	var difficultyLevelID = difficultyTbl.Select(levelID => levelID.DifficultyId).First();
+			//}
+			//var questions = _context.Questions.Where(difficultyTbl => difficultyTbl.Difficulty.DifficultyName == level);
 
-			if (questions.Count() == 0)
-			{
-				return NotFound();
-			}
-            else
-            {
-				PaginationHandler pg = new PaginationHandler(_context.Categories, _context.Difficulties);
-				return Ok(pg.paginateQuestions(questions, new QueryParam()));
-			}
+			//if (questions.Count() == 0)
+			//{
+			//	return NotFound();
+			//}
+   //         else
+   //         {
+			//	PaginationHandler pg = new PaginationHandler(_context.Categories, _context.Difficulties);
+			//	return Ok(pg.paginateQuestions(questions, new QueryParam()));
+			//}
 
-			
-		}
+            return Ok();
+
+        }
 
 		[HttpGet("Status/statusCode")]
 		public IActionResult getQuestionsByStatusCode(string statusCode)
         {
-			var statusTbl = _context.Statuses.Where(statusName => statusName.StatusName == statusCode);
+			//var statusTbl = _context.Statuses.Where(statusName => statusName.StatusName == statusCode);
 
-			if (statusTbl.Count() == 0)
-            {
-				return NotFound();
-            }
-            else
-            {
-				var statusID = statusTbl.Select(statusID => statusID.StatusId).First();
-            }
+			//if (statusTbl.Count() == 0)
+   //         {
+			//	return NotFound();
+   //         }
+   //         else
+   //         {
+			//	var statusID = statusTbl.Select(statusID => statusID.StatusId).First();
+   //         }
 
 
-			var questions = _context.Questions.Where(q => q.Status.StatusName == statusCode);
+			//var questions = _context.Questions.Where(q => q.Status.StatusName == statusCode);
 
-			if (questions == null)
-            {
-				return NotFound();
-            }
+			//if (questions == null)
+   //         {
+			//	return NotFound();
+   //         }
 
-			PaginationHandler pg = new PaginationHandler(_context.Categories, _context.Difficulties);
+			//PaginationHandler pg = new PaginationHandler(_context.Categories, _context.Difficulties);
 			
 
-			return Ok(pg.paginateQuestions(questions, new QueryParam()));
-			
+			//return Ok(pg.paginateQuestions(questions, new QueryParam()));
+
+            return Ok();
+
         }
 
 
