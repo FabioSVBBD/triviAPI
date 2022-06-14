@@ -10,8 +10,8 @@ namespace QuizAPI.Controllers
     public class QuizController : ControllerBase
     {
         TriviapiDBContext _context = new TriviapiDBContext();
-        ForeignKeyObjectsUtil _foreignKeyObjectsUtil = new ForeignKeyObjectsUtil();
-        InvalidResponseUtil _invalidResponseUtil = new InvalidResponseUtil();
+        ForeignKeyObjectsUtil _foreignKeyObjectsUtil = ForeignKeyObjectsUtil.getInstance();
+        InvalidResponseUtil _invalidResponseUtil = InvalidResponseUtil.getInstance();
 
         [HttpGet("{id}")]
         public IActionResult testMe(int id)
