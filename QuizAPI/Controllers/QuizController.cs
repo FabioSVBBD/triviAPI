@@ -32,8 +32,6 @@ namespace QuizAPI.Controllers
         }
 
         [HttpGet("questions")]
-        [HttpGet]
-
         public IActionResult getAllQuestions([FromQuery] QueryParam parameters)
 
         {
