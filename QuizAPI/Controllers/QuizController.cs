@@ -5,14 +5,14 @@ using QuizAPI.DTOs;
 
 namespace QuizAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api")]
     [ApiController]
     public class QuizController : ControllerBase
     {
         TriviapiDBContext _context = new TriviapiDBContext();
         ValueToIdUtil _valueToIdUtil = new ValueToIdUtil();
 
-        [HttpGet("{id}")]
+        [HttpGet("question/{id}")]
         public IActionResult testMe(int id)
         {
             Question? question = _context.Questions.Find(id);
@@ -25,7 +25,7 @@ namespace QuizAPI.Controllers
             return Ok(question);
         }
 
-        [HttpPatch("{id}")]
+        [HttpPatch("status/{id}")]
         public IActionResult updateStatus(int id, [FromBody] StatusDTO status)
         {
             Question? questionToChange = _context.Questions.Find(id);
@@ -65,7 +65,7 @@ namespace QuizAPI.Controllers
             }
         }
 
-        [HttpPatch("mainPatch/{id}")]
+        [HttpPatch("question/{id}")]
         public IActionResult updateQuestion(int id, [FromBody] QuestionDTO questionPatches)
         {
             Question? questionToChange = _context.Questions.Find(id);
@@ -177,7 +177,7 @@ namespace QuizAPI.Controllers
             }
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("question/{id}")]
         public IActionResult putQuestion(int id, [FromBody] QuestionDTO updatedQuestion)
         {
             Question? question = _context.Questions.Find(id);
@@ -284,7 +284,7 @@ namespace QuizAPI.Controllers
         }
 
 
-        [HttpPost]
+        [HttpPost("question")]
         public IActionResult insertQuestion([FromBody] QuestionDTO newQuestionDetails)
         {
             if (string.IsNullOrEmpty(newQuestionDetails.Question) ||
@@ -367,7 +367,7 @@ namespace QuizAPI.Controllers
             }
         }
 
-		[HttpDelete("{id}")]
+		[HttpDelete("question/{id}")]
 		public IActionResult deleteQuestion(int id)
 		{
 			Question? question = _context.Questions.Find(id);
