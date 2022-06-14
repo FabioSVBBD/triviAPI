@@ -26,7 +26,7 @@ namespace QuizAPI.Controllers
         }
 
         [HttpPatch("status/{id}")]
-        public IActionResult updateStatus(int id, [FromBody] QuestionDTO questionForStatusUpdate)
+        public IActionResult updateStatus(int id, [FromBody] StatusDTO status)
         {
             Question? questionToChange = _context.Questions.Find(id);
 
@@ -35,9 +35,9 @@ namespace QuizAPI.Controllers
                 return NotFound();
             }
 
-            if (!string.IsNullOrEmpty(questionForStatusUpdate.Status))
+            if (!string.IsNullOrEmpty(status.Status))
             {
-                Status? statusToAdd = _valueToIdUtil.getStatusByObject(questionForStatusUpdate.Status);
+                Status? statusToAdd = _valueToIdUtil.getStatusByObject(status.Status);
                 if (statusToAdd == null)
                 {
                     string cats = String.Join(", ", _context.Statuses.Select(cat => cat.StatusName)) + ".";
@@ -55,7 +55,7 @@ namespace QuizAPI.Controllers
                 _context.Questions.Update(questionToChange);
                 _context.SaveChanges();
 
-                return Ok(_context.Questions.Find(id));
+                return Ok();
             }
             catch (Exception e)
             {
@@ -291,7 +291,6 @@ namespace QuizAPI.Controllers
                 string.IsNullOrEmpty(newQuestionDetails.Answer) ||
                 string.IsNullOrEmpty(newQuestionDetails.Difficulty) ||
                 string.IsNullOrEmpty(newQuestionDetails.Category) ||
-                string.IsNullOrEmpty(newQuestionDetails.Status) ||
                 newQuestionDetails.Tags == null
                 )
             {
@@ -319,7 +318,8 @@ namespace QuizAPI.Controllers
             newQuestion.Difficulty = difficulty;
             newQuestion.DifficultyId = difficulty.DifficultyId;
 
-            var status = _valueToIdUtil.getStatusByObject(newQuestionDetails.Status);
+
+            var status = _valueToIdUtil.getStatusByObject("pending");
             if (status == null)
             {
                 return BadRequest("Status does not exist");
@@ -390,7 +390,7 @@ namespace QuizAPI.Controllers
 				_context.Questions.Update(question);
 				_context.SaveChanges();
 
-				return Ok(_context.Questions.Find(id));
+				return Ok();
 			}
 			catch (Exception e)
 			{
