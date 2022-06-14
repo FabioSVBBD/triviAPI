@@ -5,7 +5,7 @@ using QuizAPI.DTOs;
 
 namespace QuizAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api")]
     [ApiController]
     public class QuizController : ControllerBase
     {
@@ -13,7 +13,7 @@ namespace QuizAPI.Controllers
         ForeignKeyObjectsUtil _foreignKeyObjectsUtil = new ForeignKeyObjectsUtil();
         InvalidResponseUtil _invalidResponseUtil = new InvalidResponseUtil();
 
-        [HttpGet("{id}")]
+        [HttpGet("question/{id}")]
         public IActionResult testMe(int id)
         {
             Question? question = _context.Questions.Find(id);
@@ -26,8 +26,8 @@ namespace QuizAPI.Controllers
             return Ok(question);
         }
 
-        [HttpPatch("{id}")]
-        public IActionResult updateStatus(int id, [FromBody] QuestionDTO questionForStatusUpdate)
+        [HttpPatch("status/{id}")]
+        public IActionResult updateStatus(int id, [FromBody] StatusDTO status)
         {
             Question? questionToChange = _context.Questions.Find(id);
 
@@ -36,9 +36,11 @@ namespace QuizAPI.Controllers
                 return NotFound();
             }
 
-            if (!string.IsNullOrEmpty(questionForStatusUpdate.Status))
+            if (!string.IsNullOrEmpty(status.Status))
             {
-                Status? statusToAdd = _foreignKeyObjectsUtil.getStatusByObject(questionForStatusUpdate.Status);
+
+                Status? statusToAdd = _foreignKeyObjectsUtil.getStatusByObject(status.Status);
+
                 if (statusToAdd == null)
                 {
                     return BadRequest(_invalidResponseUtil.getInvalidStatusResponse());
@@ -55,7 +57,7 @@ namespace QuizAPI.Controllers
                 _context.Questions.Update(questionToChange);
                 _context.SaveChanges();
 
-                return Ok(_context.Questions.Find(id));
+                return Ok();
             }
             catch (Exception e)
             {
@@ -65,7 +67,7 @@ namespace QuizAPI.Controllers
             }
         }
 
-        [HttpPatch("mainPatch/{id}")]
+        [HttpPatch("question/{id}")]
         public IActionResult updateQuestion(int id, [FromBody] QuestionDTO questionPatches)
         {
             Question? questionToChange = _context.Questions.Find(id);
@@ -172,7 +174,7 @@ namespace QuizAPI.Controllers
             }
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("question/{id}")]
         public IActionResult putQuestion(int id, [FromBody] QuestionDTO updatedQuestion)
         {
             Question? question = _context.Questions.Find(id);
@@ -278,14 +280,13 @@ namespace QuizAPI.Controllers
         }
 
 
-        [HttpPost]
+        [HttpPost("question")]
         public IActionResult insertQuestion([FromBody] QuestionDTO newQuestionDetails)
         {
             if (string.IsNullOrEmpty(newQuestionDetails.Question) ||
                 string.IsNullOrEmpty(newQuestionDetails.Answer) ||
                 string.IsNullOrEmpty(newQuestionDetails.Difficulty) ||
                 string.IsNullOrEmpty(newQuestionDetails.Category) ||
-                string.IsNullOrEmpty(newQuestionDetails.Status) ||
                 newQuestionDetails.Tags == null
                 )
             {
@@ -313,7 +314,8 @@ namespace QuizAPI.Controllers
             newQuestion.Difficulty = difficulty;
             newQuestion.DifficultyId = difficulty.DifficultyId;
 
-            var status = _foreignKeyObjectsUtil.getStatusByObject(newQuestionDetails.Status);
+            var status = _foreignKeyObjectsUtil.getStatusByObject("pending");
+
             if (status == null)
             {
                 return BadRequest("Status does not exist");
@@ -361,7 +363,7 @@ namespace QuizAPI.Controllers
             }
         }
 
-		[HttpDelete("{id}")]
+		[HttpDelete("question/{id}")]
 		public IActionResult deleteQuestion(int id)
 		{
 			Question? question = _context.Questions.Find(id);
@@ -384,7 +386,7 @@ namespace QuizAPI.Controllers
 				_context.Questions.Update(question);
 				_context.SaveChanges();
 
-				return Ok(_context.Questions.Find(id));
+				return Ok();
 			}
 			catch (Exception e)
 			{
