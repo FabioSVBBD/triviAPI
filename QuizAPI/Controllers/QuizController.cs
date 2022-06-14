@@ -19,16 +19,15 @@ namespace QuizAPI.Controllers
 		public IActionResult getQuestionById(int id)
 		{
 			PaginationHandler _page = new PaginationHandler(_context.Categories, _context.Difficulties);
-			var question = _context.Questions.Where(question => question.QuestionId == id);
+			Question? question = _context.Questions.Where(question => question.QuestionId == id).ToList().FirstOrDefault();
 
-			if (question.Count() == 0)
+			if (question == null || !question.Status.StatusName.Equals("approved"))
             {
 				return NotFound();
             }
             else
             {
-				var questionTbl = _page.paginateQuestions(question, new QueryParam());
-				return Ok(questionTbl);
+				return Ok(QuestionDTO.AsDTO(question, _foreignKeyObjectsUtil.getTagsForQuestion(id).ToArray()));
 			}
 		}
 
@@ -338,6 +337,7 @@ namespace QuizAPI.Controllers
             catch (Exception e)
             {
                 _ = e;
+                Console.WriteLine(e);
                 return BadRequest(_invalidResponseUtil.getInvalidValuesResponse());
             }
         }
