@@ -127,7 +127,7 @@ namespace QuizAPI.Controllers
                         {
                             return BadRequest(_invalidResponseUtil.getInvalidTagResponse());
                         }
-                        if (_context.QuestionTags.Select(s => s.QuestionId == id && s.TagId == tagObject.TagId) != null)
+                        if (_context.QuestionTags.Where(s => s.QuestionId == id && s.TagId == tagObject.TagId).ToList().Count == 0)
                         {
                             tagsToAdd.QuestionId = id;
                             tagsToAdd.Question = questionToChange;
@@ -233,7 +233,7 @@ namespace QuizAPI.Controllers
                         return BadRequest(_invalidResponseUtil.getInvalidTagResponse());
                     }
 
-                    if (_context.QuestionTags.Select(s => s.QuestionId == id && s.TagId == tagObject.TagId) != null)
+                    if (_context.QuestionTags.Where(s => s.QuestionId == id && s.TagId == tagObject.TagId).ToList().Count == 0)
                     {
                         tagsToAdd.QuestionId = id;
                         tagsToAdd.Question = question;
