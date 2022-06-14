@@ -22,7 +22,5 @@ namespace QuizAPI.DTOs
 
 			return new StatusDTO(status);
 		}
-
-
 	}
 }
