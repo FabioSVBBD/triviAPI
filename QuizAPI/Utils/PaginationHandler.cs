@@ -1,7 +1,8 @@
 ﻿using QuizAPI.Model;
 using QuizAPI.DTOs;
-using QuizAPI.Utils;
-namespace QuizAPI.Utilities;
+
+namespace QuizAPI.Utils;
+
 public class PaginationHandler
 {
     public int count { get; set; } = 0;

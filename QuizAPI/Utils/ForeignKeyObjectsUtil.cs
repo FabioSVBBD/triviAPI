@@ -14,28 +14,21 @@ namespace QuizAPI.Utils
 			return _context.Questions.Find(id) != null;
 		}
 
-		public Difficulty? getDifficultyObject(string difficultyName)
+		public Difficulty? getDifficulty(string difficultyName)
 		{
 			return (from d in _context.Difficulties
 					where d.DifficultyName.ToLower() == difficultyName.ToLower()
 					select d).ToList().FirstOrDefault();
 		}
 
-		public Category? getCategoryObject(string categoryName)
+		public Category? getCategory(string categoryName)
 		{
 			return (from c in _context.Categories
 					where c.CategoryName.ToLower() == categoryName.ToLower()
 					select c).ToList().FirstOrDefault();
 		}
 
-		public Status? getStatusByObject(string statusName)
-		{
-			return (from s in _context.Statuses
-					where s.StatusName.ToLower() == statusName.ToLower()
-					select s).ToList().FirstOrDefault();
-		}
-
-		public Tag? getTagObject(string tagName)
+		public Tag? getTag(string tagName)
         {
 			return (from t in _context.Tags
 					where t.TagName.ToLower() == tagName.ToLower()
@@ -54,13 +47,12 @@ namespace QuizAPI.Utils
 					}).ToList().Select(t => t.tagName).ToList();
 		}
 
-		public Status getStatusObject(string statusName)
+		public Status? getStatus(string statusName)
 		{
-			Status? statusToGet = (from s in _context.Statuses
-								   where s.StatusName == statusName
-								   select s).ToList().FirstOrDefault();
+			return (from s in _context.Statuses
+					where s.StatusName.ToLower() == statusName.ToLower()
+					select s).ToList().FirstOrDefault();
 
-			return statusToGet;
 		}
 	}
 }

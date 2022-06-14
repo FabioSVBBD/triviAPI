@@ -10,6 +10,7 @@ public class QueryValidator
     public List<string> tags { get; set; } = new();
     public List<string> categories = new();
     public List<string> difficulties = new();
+    public string status = string.Empty;
 
     public int page { get; set; } = 1;
     private List<InvalidResponseDTO> errors = new();
@@ -24,6 +25,8 @@ public class QueryValidator
         this.difficulties = validateDifficulties(queryParam.Difficulties);
         this.tags = validateTags(queryParam.Tags) ? queryParam.Tags : new();
         this.categories = validateCategories(queryParam.Categories);
+        this.status = validateStatus(queryParam.status);
+
     }
 
     public bool isValid()
@@ -40,6 +43,19 @@ public class QueryValidator
     public FilterQuery data(HttpRequest request)
     {
         return new FilterQuery(this, request);
+    }
+
+    public string validateStatus(string status){
+            var statusObject = _foreignKeyObjectsUtil.getStatus(status);
+
+            bool keep;
+
+            if(statusObject != null){
+                return status;
+            } else {
+                errors.Add(new InvalidResponseUtil().getInvalidDifficultyResponse());
+                return "";
+            }
     }
 
     public List<string> validateDifficulties(List<string> userList)
@@ -88,7 +104,7 @@ public class QueryValidator
     {
         foreach (string tag in tags)
         {
-            Tag? tagObject = _foreignKeyObjectsUtil.getTagObject(tag);
+            Tag? tagObject = _foreignKeyObjectsUtil.getTag(tag);
             if (tagObject == null)
             {
                 Console.WriteLine("in block");

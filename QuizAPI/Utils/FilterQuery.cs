@@ -1,7 +1,7 @@
 ﻿using QuizAPI.Model;
 using QuizAPI.Validation;
 using Microsoft.AspNetCore.Mvc;
-using QuizAPI.Utilities;
+using QuizAPI.Utils;
 
 namespace QuizAPI.Utils;
 
@@ -13,6 +13,7 @@ public class FilterQuery
 
     private IQueryable<Question> foundData = new List<Question>().AsQueryable();
 
+    private string status = "approved";
     private IQueryable<Question> approvedQuestions;
     private TriviapiDBContext _context = new TriviapiDBContext();
 
@@ -24,8 +25,16 @@ public class FilterQuery
 
         CurrentUrl = $"{scheme}://{host}{path}";
 
+        status = validData.status.Length == 0 ? "approved" : validData.status;
+
         queryValidator = validData;
-        approvedQuestions = _context.Questions.Where(x => x.Status.StatusName == "approved");
+        approvedQuestions = _context.Questions.Where(x => x.Status.StatusName == status);
+        approvedQuestions.ToList().ForEach(s => Console.WriteLine(s));
+    }
+
+    private void byStatus()
+    {
+        foundData = approvedQuestions;
     }
 
     private void byCategory()
@@ -106,6 +115,10 @@ public class FilterQuery
         this.byTag();
         this.byCategory();
         this.byDifficulty();
+        if(queryValidator.status.Length != 0)
+        {
+            this.byStatus();
+        }
 
         if (foundData.Count() == 0)
             return new ObjectResult("Nothing");

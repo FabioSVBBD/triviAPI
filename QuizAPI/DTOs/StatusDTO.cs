@@ -4,14 +4,14 @@ namespace QuizAPI.DTOs
 {
     public class StatusDTO
     {
-        private string? status;
+        private string status;
 
 		public StatusDTO(String status)
 		{
 			this.status = status;
 		}
 
-		public string? Status { get => status; set => status = value; }
+		public string Status { get => status; set => status = value; }
 
 		public static StatusDTO? AsDTO(String status)
 		{
@@ -22,7 +22,5 @@ namespace QuizAPI.DTOs
 
 			return new StatusDTO(status);
 		}
-
-
 	}
 }
