@@ -20,18 +20,7 @@ namespace QuizAPI.Controllers
 		[HttpGet("{id}")]
 		public IActionResult getQuestionById(int id)
 		{
-            //PaginationHandler _page = new PaginationHandler(_context.Categories, _context.Difficulties);
-            //var question = _context.Questions.Where(question => question.QuestionId == id);
-
-            //if (question.Count() == 0)
-            //         {
-            //	return NotFound();
-            //         }
-            //         else
-            //         {
-            //	var questionTbl = _page.paginateQuestions(question, new QueryParam());
-            //	return Ok(questionTbl);
-            //}
+            
 
             return Ok();
 		}
@@ -39,14 +28,15 @@ namespace QuizAPI.Controllers
 		[HttpGet]
 		public IActionResult getAllQuestions([FromQuery] QueryParam parameters)
 		{
-            QueryValidator queryValidator = new QueryValidator(parameters);
-            if (queryValidator.isValid())
+            QueryValidator validator = new QueryValidator(parameters);
+
+            if (validator.isValid())
             {
-                var currentData = queryValidator.data(Request);
-                return Ok(currentData.byAll());
+                FilterQuery data = validator.data(Request);
+                return data.byAll();
             }
 
-            return BadRequest(queryValidator.validationErrors());
+            return BadRequest(validator.validationErrors());
 		}
 
 

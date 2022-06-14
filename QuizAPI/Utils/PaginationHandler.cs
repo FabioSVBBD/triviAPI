@@ -1,7 +1,7 @@
 ﻿using QuizAPI.Model;
 using QuizAPI.DTOs;
-
-namespace QuizAPI.Utils;
+using QuizAPI.Utils;
+namespace QuizAPI.Utilities;
 public class PaginationHandler
 {
     public int count { get; set; } = 0;
@@ -37,15 +37,14 @@ public class PaginationHandler
 
         var tagsQuerySet = _context.Tags;
         var filteredQuestionTags = _context.QuestionTags.Where(x => x.QuestionId == questionID).ToList();
-        filteredQuestionTags.ForEach(x =>
-        {
+        filteredQuestionTags.ForEach(x => {
             Tag? foundTag = tagsQuerySet.Find(x.TagId);
 
             if (foundTag != null)
             {
                 ret.Add(foundTag.TagName);
             }
-        }
+          }
         );
         return ret;
     }

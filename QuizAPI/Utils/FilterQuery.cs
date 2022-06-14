@@ -1,6 +1,7 @@
 ﻿using QuizAPI.Model;
 using QuizAPI.Validation;
 using Microsoft.AspNetCore.Mvc;
+using QuizAPI.Utilities;
 
 namespace QuizAPI.Utils;
 
@@ -63,7 +64,6 @@ public class FilterQuery
         if (foundData.Count() != 0)
         {
             bool countedDifficulties = queryValidator.difficulties.Count > 0;
-            Console.WriteLine(queryValidator.difficulties.Count);
 
             foundData = !countedDifficulties ? foundData : foundData.Where(x =>
                 queryValidator.difficulties.Contains(x.Difficulty.DifficultyName.ToLower())
@@ -71,7 +71,7 @@ public class FilterQuery
         }
         else
         {
-            List<Question> difficultyQuestions = foundData.Where(
+            List<Question> difficultyQuestions = approvedQuestions.Where(
                 x => queryValidator.difficulties.Contains(x.Difficulty.DifficultyName.ToLower())
             ).ToList();
 
@@ -79,8 +79,31 @@ public class FilterQuery
         }
     }
 
+    private void byTag()
+    {
+        IQueryable<QuestionTag> qt = _context.QuestionTags.Where(x => queryValidator.tags.Contains(x.Tag.TagName.ToLower()));
+
+        if (foundData.Count() != 0)
+        {
+            bool countedTags = queryValidator.tags.Count > 0;
+
+            foundData = !countedTags ? foundData : foundData.Where(x =>
+                qt.Any(tag => tag.QuestionId == x.QuestionId)
+            );
+        }
+        else
+        {
+            List<Question> tagQuestions = approvedQuestions.Where(
+                x => qt.Any(tag => tag.QuestionId == x.QuestionId)
+            ).ToList();
+
+            tagQuestions.ForEach(x => addToFoundData(x));
+        }
+    }
+
     public ObjectResult byAll()
     {
+        this.byTag();
         this.byCategory();
         this.byDifficulty();
 

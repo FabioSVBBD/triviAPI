@@ -14,6 +14,7 @@ public class QueryValidator
     public int page { get; set; } = 1;
     private List<InvalidResponseDTO> errors = new();
     private TriviapiDBContext _context = new TriviapiDBContext();
+    ForeignKeyObjectsUtil _foreignKeyObjectsUtil = new ForeignKeyObjectsUtil();
 
     public QueryValidator(
         QueryParam queryParam
@@ -21,12 +22,13 @@ public class QueryValidator
     {
         this.page = queryParam.Page;
         this.difficulties = validateDifficulties(queryParam.Difficulties);
-        this.tags = validateTags(queryParam.Tags);
+        this.tags = validateTags(queryParam.Tags) ? queryParam.Tags : new();
         this.categories = validateCategories(queryParam.Categories);
     }
 
     public bool isValid()
     {
+        Console.WriteLine(errors.Count);
         return errors.Count == 0;
     }
 
@@ -58,7 +60,6 @@ public class QueryValidator
         if (difficulties.Count > 0 && result.Count == 0)
             errors.Add(new InvalidResponseUtil().getInvalidDifficultyResponse());
 
-        Console.WriteLine($"so uhm {result.Count}");
         return result;
     }
 
@@ -83,24 +84,18 @@ public class QueryValidator
         return result;
     }
 
-    public List<string> validateTags(List<string> tags)
+    public bool validateTags(List<string> tags)
     {
-        tags.ForEach(x => x.ToLower());
-
-        List<string> result = new();
-        IQueryable<Category> categoryQS = _context.Categories;
-
-        foreach (string category in categories)
+        foreach (string tag in tags)
         {
-            bool keep = categoryQS.Any(x => x.CategoryName.ToLower() == category);
-
-            if (keep)
-                result.Add(category);
+            Tag? tagObject = _foreignKeyObjectsUtil.getTagObject(tag);
+            if (tagObject == null)
+            {
+                Console.WriteLine("in block");
+                errors.Add(new InvalidResponseUtil().getInvalidCategoryResponse());
+                return false;
+            }
         }
-
-        if (categories.Count > 0 && result.Count == 0)
-            errors.Add(new InvalidResponseUtil().getInvalidTagResponse());
-
-        return result;
+        return true;
     }
 }
