@@ -3,6 +3,7 @@ using QuizAPI.Model;
 using QuizAPI.Utils;
 using QuizAPI.DTOs;
 using System.Text.Json;
+using QuizAPI.Validation;
 
 namespace QuizAPI.Controllers
 {
@@ -14,184 +15,197 @@ namespace QuizAPI.Controllers
         ForeignKeyObjectsUtil _foreignKeyObjectsUtil = new ForeignKeyObjectsUtil();
         InvalidResponseUtil _invalidResponseUtil = new InvalidResponseUtil();
 
-		[HttpGet("question/{id}")]
+        [HttpGet("question/{id}")]
 
-		public IActionResult getQuestionById(int id)
-		{
-			PaginationHandler _page = new PaginationHandler(_context.Categories, _context.Difficulties);
-			Question? question = _context.Questions.Where(question => question.QuestionId == id).ToList().FirstOrDefault();
+        public IActionResult getQuestionById(int id)
+        {
+            Question? question = _context.Questions.Where(question => question.QuestionId == id).ToList().FirstOrDefault();
 
-			if (question == null || !question.Status.StatusName.Equals("approved"))
+            if (question == null || !question.Status.StatusName.Equals("approved"))
             {
-				return NotFound();
+                return NotFound();
             }
             else
             {
-				return Ok(QuestionDTO.AsDTO(question, _foreignKeyObjectsUtil.getTagsForQuestion(id).ToArray()));
-			}
-		}
+                return Ok(QuestionDTO.AsDTO(question, _foreignKeyObjectsUtil.getTagsForQuestion(id).ToArray()));
+            }
+        }
 
-		[HttpGet("questions")]
-		public IActionResult getAllQuestions([FromQuery] QueryParam parameters)
-		{
-			PaginationHandler _page = new PaginationHandler(_context.Categories, _context.Difficulties);
+        [HttpGet("questions")]
+        [HttpGet]
 
-			var questions = _context.Questions;
-			var paginatedBody = _page.paginateQuestions(questions, parameters);
+        public IActionResult getAllQuestions([FromQuery] QueryParam parameters)
 
-			return paginatedBody.results.Count > 0 ? Ok(paginatedBody) : NotFound(paginatedBody);
-		}
+        {
+
+            QueryValidator queryValidator = new QueryValidator(parameters);
+
+            if (queryValidator.isValid())
+
+            {
+
+                var currentData = queryValidator.data(Request);
+
+                return Ok(currentData.byAll());
+
+            }
+
+
+
+            return BadRequest(queryValidator.validationErrors());
+
+        }
 
 
         [HttpGet("difficulties")]
-		public IActionResult getAllDifficulties()
+        public IActionResult getAllDifficulties()
         {
-			var difficulties = _context.Difficulties.Select(diff => diff.DifficultyName );
+            var difficulties = _context.Difficulties.Select(diff => diff.DifficultyName);
 
-			if (difficulties.Count() == 0)
+            if (difficulties.Count() == 0)
             {
-				return NotFound();
+                return NotFound();
             }
 
-			return Ok(difficulties);
+            return Ok(difficulties);
         }
 
-		[HttpGet("categories")]
-		public IActionResult getallCategories()
-		{
-			var categories = _context.Categories.Select(c => c.CategoryName);
+        [HttpGet("categories")]
+        public IActionResult getallCategories()
+        {
+            var categories = _context.Categories.Select(c => c.CategoryName);
 
-			if (categories.Count() == 0)
+            if (categories.Count() == 0)
             {
-				return NotFound();
+                return NotFound();
             }
 
-			return Ok(categories);
-		}
-		
+            return Ok(categories);
+        }
+
         [HttpGet("statuses")]
-		public IActionResult getAllStatuses()
+        public IActionResult getAllStatuses()
         {
-			var statuses = _context.Statuses.Select(status => status.StatusName);
+            var statuses = _context.Statuses.Select(status => status.StatusName);
 
-			if (statuses.Count() == 0)
+            if (statuses.Count() == 0)
             {
-				return NotFound();
+                return NotFound();
             }
-			return Ok(statuses);
+            return Ok(statuses);
         }
 
-		[HttpGet("tags")]
-		public IActionResult getAllTags()
+        [HttpGet("tags")]
+        public IActionResult getAllTags()
         {
-			var tags = _context.Tags.Select(tag => tag.TagName);
+            var tags = _context.Tags.Select(tag => tag.TagName);
 
-			if (tags.Count() == 0)
+            if (tags.Count() == 0)
             {
-				return NotFound();
+                return NotFound();
             }
-			return Ok(tags);
+            return Ok(tags);
         }
 
-        [HttpGet("questions/tags")]
-		public IActionResult GetAllQuestionsByName(string TagName)
-        {
-			var tagID = _context.Tags.Where(tagTbl => tagTbl.TagName == TagName).Select(id => id.TagId).First();
+        //[HttpGet("questions/tags")]
+        //public IActionResult GetAllQuestionsByName(string TagName)
+        //{
+        //    var tagID = _context.Tags.Where(tagTbl => tagTbl.TagName == TagName).Select(id => id.TagId).First();
 
-			var questionID = _context.QuestionTags.Where(qtagTbl => qtagTbl.TagId == tagID).Select(id => id.QuestionId).First();
+        //    var questionID = _context.QuestionTags.Where(qtagTbl => qtagTbl.TagId == tagID).Select(id => id.QuestionId).First();
 
-			var questions = _context.Questions.Where(tagTbl => tagTbl.QuestionId == questionID);
+        //    var questions = _context.Questions.Where(tagTbl => tagTbl.QuestionId == questionID);
 
-			PaginationHandler pg = new PaginationHandler(_context.Categories, _context.Difficulties);
+        //    PaginationHandler pg = new PaginationHandler(_context.Categories, _context.Difficulties);
 
-			if (questions.Count()== 0)
-			{
-				return NotFound();
-			}
-            else
-            {
-				var questionTbl = pg.paginateQuestions(questions, new QueryParam());
+        //    if (questions.Count() == 0)
+        //    {
+        //        return NotFound();
+        //    }
+        //    else
+        //    {
+        //        var questionTbl = pg.paginateQuestions(questions, new QueryParam());
 
-				return Ok(questionTbl);
-			}
-		}
+        //        return Ok(questionTbl);
+        //    }
+        //}
 
-		[HttpGet("questions/category")]
-		public IActionResult getQuestionsbyGategoryName(string categoryName)
-		{
-			var categoryTbl = _context.Categories.Where(category => category.CategoryName == categoryName);
+        //[HttpGet("questions/category")]
+        //public IActionResult getQuestionsbyGategoryName(string categoryName)
+        //{
+        //    var categoryTbl = _context.Categories.Where(category => category.CategoryName == categoryName);
 
-			if (categoryTbl.Count() == 0)
-            {
-				return NotFound();
-            }
-            else
-            {
-				var categoryID2 = categoryTbl.Select(id => id.CategoryId).First();
-            }
-			var questions = _context.Questions.Where(x => x.Category.CategoryName.ToLower() == categoryName.ToLower());
+        //    if (categoryTbl.Count() == 0)
+        //    {
+        //        return NotFound();
+        //    }
+        //    else
+        //    {
+        //        var categoryID2 = categoryTbl.Select(id => id.CategoryId).First();
+        //    }
+        //    var questions = _context.Questions.Where(x => x.Category.CategoryName.ToLower() == categoryName.ToLower());
 
-			if (questions.Count() == 0)
-            {
-				return NotFound();
-            }
-            else
-            {
-				PaginationHandler pg = new PaginationHandler(_context.Categories, _context.Difficulties);
-				var questionsTbl = pg.paginateQuestions(questions, new QueryParam());
-				return Ok(questionsTbl);
-			}
-		}
+        //    if (questions.Count() == 0)
+        //    {
+        //        return NotFound();
+        //    }
+        //    else
+        //    {
+        //        PaginationHandler pg = new PaginationHandler(_context.Categories, _context.Difficulties);
+        //        var questionsTbl = pg.paginateQuestions(questions, new QueryParam());
+        //        return Ok(questionsTbl);
+        //    }
+        //}
 
 
-		[HttpGet("questions/difficulty")]
-		public IActionResult getQuestionsByDifficulty(string level)
-		{
-			var difficultyTbl = _context.Difficulties.Where(difficullyLevel => difficullyLevel.DifficultyName == level);
+        //[HttpGet("questions/difficulty")]
+        //public IActionResult getQuestionsByDifficulty(string level)
+        //{
+        //    var difficultyTbl = _context.Difficulties.Where(difficullyLevel => difficullyLevel.DifficultyName == level);
 
-			if (difficultyTbl.Count() == 0)
-            {
-				return NotFound();
-            }
-            else
-            {
-				var difficultyLevelID = difficultyTbl.Select(levelID => levelID.DifficultyId).First();
-			}
-			var questions = _context.Questions.Where(difficultyTbl => difficultyTbl.Difficulty.DifficultyName == level);
+        //    if (difficultyTbl.Count() == 0)
+        //    {
+        //        return NotFound();
+        //    }
+        //    else
+        //    {
+        //        var difficultyLevelID = difficultyTbl.Select(levelID => levelID.DifficultyId).First();
+        //    }
+        //    var questions = _context.Questions.Where(difficultyTbl => difficultyTbl.Difficulty.DifficultyName == level);
 
-			if (questions.Count() == 0)
-			{
-				return NotFound();
-			}
-            else
-            {
-				PaginationHandler pg = new PaginationHandler(_context.Categories, _context.Difficulties);
-				return Ok(pg.paginateQuestions(questions, new QueryParam()));
-			}
-		}
+        //    if (questions.Count() == 0)
+        //    {
+        //        return NotFound();
+        //    }
+        //    else
+        //    {
+        //        PaginationHandler pg = new PaginationHandler(_context.Categories, _context.Difficulties);
+        //        return Ok(pg.paginateQuestions(questions, new QueryParam()));
+        //    }
+        //}
 
-		[HttpGet("questions/status")]
-		public IActionResult getQuestionsByStatusCode(StatusDTO statusCode)
-        {
-            Status? status = _foreignKeyObjectsUtil.getStatus(statusCode.Status);
+        //[HttpGet("questions/status")]
+        //public IActionResult getQuestionsByStatusCode(StatusDTO statusCode)
+        //{
+        //    Status? status = _foreignKeyObjectsUtil.getStatus(statusCode.Status);
 
-			if (status == null)
-            {
-				return NotFound(_invalidResponseUtil.getInvalidStatusResponse());
-            }
+        //    if (status == null)
+        //    {
+        //        return NotFound(_invalidResponseUtil.getInvalidStatusResponse());
+        //    }
 
-			var questions = _context.Questions.Where(q => q.StatusId == status.StatusId);
+        //    var questions = _context.Questions.Where(q => q.StatusId == status.StatusId);
 
-			if (questions == null)
-            {
-				return NotFound(_invalidResponseUtil.getInvalidStatusResponse());
-            }
+        //    if (questions == null)
+        //    {
+        //        return NotFound(_invalidResponseUtil.getInvalidStatusResponse());
+        //    }
 
-			PaginationHandler pg = new PaginationHandler(_context.Categories, _context.Difficulties);
-			
+        //    PaginationHandler pg = new PaginationHandler(_context.Categories, _context.Difficulties);
 
-			return Ok(pg.paginateQuestions(questions, new QueryParam()));
-        }
+
+        //    return Ok(pg.paginateQuestions(questions, new QueryParam()));
+        //}
 
 
 
@@ -313,9 +327,11 @@ namespace QuizAPI.Controllers
 
             Status? pending = _foreignKeyObjectsUtil.getStatus("pending");
 
-			if (pending == null) {
-				return StatusCode(500, _invalidResponseUtil.getPendingFailResponse());
-			} else
+            if (pending == null)
+            {
+                return StatusCode(500, _invalidResponseUtil.getPendingFailResponse());
+            }
+            else
             {
                 if (!(pending.StatusId == questionToChange.Status.StatusId))
                 {
@@ -443,7 +459,7 @@ namespace QuizAPI.Controllers
             catch (Exception e)
             {
                 _ = e;
-								return StatusCode(500, _invalidResponseUtil.getGenericErrorResponse());
+                return StatusCode(500, _invalidResponseUtil.getGenericErrorResponse());
             }
         }
 
@@ -526,40 +542,41 @@ namespace QuizAPI.Controllers
             catch (Exception e)
             {
                 _ = e;
-								return StatusCode(500, _invalidResponseUtil.getGenericErrorResponse());
+                return StatusCode(500, _invalidResponseUtil.getGenericErrorResponse());
             }
         }
 
-		[HttpDelete("question/{id}")]
-		public IActionResult deleteQuestion(int id)
-		{
-			Question? question = _context.Questions.Find(id);
+        [HttpDelete("question/{id}")]
+        public IActionResult deleteQuestion(int id)
+        {
+            Question? question = _context.Questions.Find(id);
 
-			if (question == null)
-			{
-				return NotFound();
-			}
+            if (question == null)
+            {
+                return NotFound();
+            }
 
-			var deletedStatus = _foreignKeyObjectsUtil.getStatus("deleted");
+            var deletedStatus = _foreignKeyObjectsUtil.getStatus("deleted");
 
-			if (deletedStatus == null) {
-				return StatusCode(500, _invalidResponseUtil.getDeletedFailResponse());
-			}
+            if (deletedStatus == null)
+            {
+                return StatusCode(500, _invalidResponseUtil.getDeletedFailResponse());
+            }
 
-			question.Status = deletedStatus;
+            question.Status = deletedStatus;
 
-			try
-			{
-				_context.Questions.Update(question);
-				_context.SaveChanges();
+            try
+            {
+                _context.Questions.Update(question);
+                _context.SaveChanges();
 
-				return Ok();
-			}
-			catch (Exception e)
-			{
-				_ = e;
-				return BadRequest(_invalidResponseUtil.getDeleteFailedResponse());
-			}
-		}
-	}
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                _ = e;
+                return BadRequest(_invalidResponseUtil.getDeleteFailedResponse());
+            }
+        }
+    }
 }
