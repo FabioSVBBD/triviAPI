@@ -174,7 +174,7 @@ namespace QuizAPI.Controllers
 		[HttpGet("questions/status")]
 		public IActionResult getQuestionsByStatusCode(StatusDTO statusCode)
         {
-            Status status = _foreignKeyObjectsUtil.getStatus(statusCode.Status);
+            Status? status = _foreignKeyObjectsUtil.getStatus(statusCode.Status);
 
 			if (status == null)
             {
@@ -185,7 +185,7 @@ namespace QuizAPI.Controllers
 
 			if (questions == null)
             {
-				return NotFound($"No questions have the status code {status.StatusName}");
+				return NotFound(_invalidResponseUtil.getInvalidStatusResponse());
             }
 
 			PaginationHandler pg = new PaginationHandler(_context.Categories, _context.Difficulties);
@@ -232,7 +232,7 @@ namespace QuizAPI.Controllers
             catch (Exception e)
             {
                 _ = e;
-                return BadRequest("Invalid Values");
+                return BadRequest(_invalidResponseUtil.getInvalidValuesResponse());
             }
         }
 
@@ -338,7 +338,7 @@ namespace QuizAPI.Controllers
             catch (Exception e)
             {
                 _ = e;
-                return BadRequest("Invalid Values");
+                return BadRequest(_invalidResponseUtil.getInvalidValuesResponse());
             }
         }
 
@@ -358,7 +358,7 @@ namespace QuizAPI.Controllers
                 string.IsNullOrEmpty(updatedQuestion.Category) ||
                 updatedQuestion.Tags == null)
             {
-                return BadRequest("You are missing some fields");
+                return BadRequest(_invalidResponseUtil.getMissingFieldsResponse());
             }
 
             question.Question1 = updatedQuestion.Question;
@@ -443,7 +443,7 @@ namespace QuizAPI.Controllers
             catch (Exception e)
             {
                 _ = e;
-                return BadRequest("An error occurred on our side");
+								return StatusCode(500, _invalidResponseUtil.getGenericErrorResponse());
             }
         }
 
@@ -458,7 +458,7 @@ namespace QuizAPI.Controllers
                 newQuestionDetails.Tags == null
                 )
             {
-                return BadRequest("You are missing some fields");
+                return BadRequest(_invalidResponseUtil.getMissingFieldsResponse());
             }
 
             var newQuestion = new Question();
@@ -468,7 +468,7 @@ namespace QuizAPI.Controllers
             var category = _foreignKeyObjectsUtil.getCategory(newQuestionDetails.Category);
             if (category == null)
             {
-                return BadRequest("Category does not exist");
+                return BadRequest(_invalidResponseUtil.getInvalidCategoryResponse());
             }
 
             newQuestion.Category = category;
@@ -477,7 +477,7 @@ namespace QuizAPI.Controllers
             var difficulty = _foreignKeyObjectsUtil.getDifficulty(newQuestionDetails.Difficulty);
             if (difficulty == null)
             {
-                return BadRequest("Difficulty does not exist");
+                return BadRequest(_invalidResponseUtil.getInvalidDifficultyResponse());
             }
             newQuestion.Difficulty = difficulty;
             newQuestion.DifficultyId = difficulty.DifficultyId;
@@ -486,7 +486,7 @@ namespace QuizAPI.Controllers
 
             if (status == null)
             {
-                return BadRequest("Status does not exist");
+                return BadRequest(_invalidResponseUtil.getInvalidStatusResponse());
             }
             newQuestion.Status = status;
             newQuestion.StatusId = status.StatusId;
@@ -526,7 +526,7 @@ namespace QuizAPI.Controllers
             catch (Exception e)
             {
                 _ = e;
-                return BadRequest("An error occured on our side"); ;
+								return StatusCode(500, _invalidResponseUtil.getGenericErrorResponse());
             }
         }
 
@@ -558,7 +558,7 @@ namespace QuizAPI.Controllers
 			catch (Exception e)
 			{
 				_ = e;
-				return BadRequest("Question already deleted");
+				return BadRequest(_invalidResponseUtil.getDeleteFailedResponse());
 			}
 		}
 	}
