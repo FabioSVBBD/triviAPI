@@ -1,5 +1,6 @@
 ﻿using QuizAPI.Model;
 using System.Linq;
+using QuizAPI.DTOs;
 
 namespace QuizAPI.Utils
 {
@@ -40,36 +41,24 @@ namespace QuizAPI.Utils
 					select t).ToList().FirstOrDefault();
 		}
 
-		public Dictionary<String, List<String>> getInvalidDifficultyResponse()
+		public InvalidResponseDTO getInvalidDifficultyResponse()
 		{
-			return new() {
-				{ "message", new List<string>() { "Invalid Difficulty" } },
-				{ "values", _context.Difficulties.ToList().Select(d => d.DifficultyName).ToList() }
-			};
+			return new InvalidResponseDTO("Invalid Difficulty", _context.Difficulties.ToList().Select(d => d.DifficultyName).ToList());
 		}
 
-		public Dictionary<String, List<String>> getInvalidCategoryResponse()
+		public InvalidResponseDTO getInvalidCategoryResponse()
 		{
-			return new() {
-				{ "message", new List<string>() { "Invalid Category" } },
-				{ "values", _context.Categories.ToList().Select(c => c.CategoryName).ToList() }
-			};
+			return new InvalidResponseDTO("Invalid Category", _context.Categories.ToList().Select(d => d.CategoryName).ToList());
 		}
 
-		public Dictionary<String, List<String>> getInvalidStatusResponse()
+		public InvalidResponseDTO getInvalidStatusResponse()
 		{
-			return new() {
-				{ "message", new List<string>() { "Invalid Status" } },
-				{ "values", _context.Statuses.ToList().Select(s => s.StatusName).ToList() }
-			};
+			return new InvalidResponseDTO("Invalid Status", _context.Statuses.ToList().Select(s => s.StatusName).ToList());
 		}
 
-		public Dictionary<String, List<String>> getInvalidTagResponse()
+		public InvalidResponseDTO getInvalidTagResponse()
 		{
-			return new() {
-				{ "message", new List<string>() { "Invalid Tag" } },
-				{ "values", _context.Tags.ToList().Select(t => t.TagName).ToList() }
-			};
+			return new InvalidResponseDTO("Invalid Tag/s", _context.Tags.ToList().Select(t => t.TagName).ToList());
 		}
 
 		public Dictionary<String, String> getPendingFailResponse()
