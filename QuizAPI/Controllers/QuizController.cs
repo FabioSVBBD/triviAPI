@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using QuizAPI.Model;
 using QuizAPI.Utils;
-using QuizAPI.Utilities;
 using QuizAPI.DTOs;
 using System.Text.Json;
+using QuizAPI.Utilities;
 
 namespace QuizAPI.Controllers
 {
@@ -37,7 +37,7 @@ namespace QuizAPI.Controllers
 		[HttpGet]
 		public IActionResult getAllQuestions([FromQuery] QueryParam parameters)
 		{
-            UrlHelper.setBaseUrl(Request.Scheme, Request.Host.Value, Request.Path);
+            // UrlHelper.setBaseUrl(Request.Scheme, Request.Host.Value, Request.Path);
 			PaginationHandler _page = new PaginationHandler(_context.Categories, _context.Difficulties);
 
 			var questions = _context.Questions;
