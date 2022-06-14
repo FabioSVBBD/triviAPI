@@ -1,35 +1,24 @@
-# RubixCube
-
-
-
+# Grad Project - System Design & Design Patterns
 
 <div id="top"></div>
 
-[![Contributors][contributors-shield]][contributors-url]
-[![Issues][issues-shield]][issues-url]
-
-
-<!-- PROJECT LOGO -->
 <br />
 <div align="center">
 
-  <h1 align="center">Triviapi</h1>
+  <h1 align="center">TriviAPI</h1>
 
   <p align="center">
-    Interactive 3x3 Rubiks Cube solver app
+    A Quiz API for those that know too much
     <br />
-    <a href="https://ChadleyM/RubixCube/wiki"><strong>Explore the docs »</strong></a>
+    <a href="https://github.com/ToriBench/triviAPI/wiki"><strong>Explore the docs »</strong></a>
     <br />
     <br />
-    <a href="https://github.com/ChadleyM/RubixCube/issues/new">Report Bug</a>
+    <a href="https://github.com/ToriBench/triviAPI/issues/new">Report Bug</a>
     ·
-    <a href="https://github.com/ChadleyM/RubixCube/issues/new">Request Feature</a>
+    <a href="https://github.com/ToriBench/triviAPI/issues/new">Request Feature</a>
   </p>
 </div>
 
-
-
-<!-- TABLE OF CONTENTS -->
 <details>
   <summary>Table of Contents</summary>
   <ol>
@@ -55,32 +44,14 @@
   </ol>
 </details>
 
-
-
-<!-- ABOUT THE PROJECT -->
 ## About The Project
 
-RubixCube is a interactive 3D 3x3 Rubiks Cube game. Use it to track your time, solve existing cubes, learn algorithms and have fun! 
+Quiz API is a project that manages quiz questions and quiz games. You can create, read, update and delete quiz questions for anyone around the world to use!
 
-<p align="right">(<a href="#top">back to top</a>)</p>
+### Technologies
+###### Built Using _.NET Core_ and Deployed using _AWS_
 
-
-
-### Built Using
-
-* [Javascript (ES6)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
-* [HTML](https://developer.mozilla.org/en-US/docs/Web/HTML)
-* [CSS](https://developer.mozilla.org/en-US/docs/Web/CSS)
-* [Three.js](https://threejs.org/)
-* [Node.js](https://nodejs.org/en/)
-* [Express](https://expressjs.com/)
-* [Webpack](https://webpack.js.org/)
-
-
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-<!-- GETTING STARTED -->
+<br />
 ## Getting Started
 
 Follow the steps below on how to run the project.
@@ -89,51 +60,25 @@ Follow the steps below on how to run the project.
 
 Please install the below required software in order to run the project.
 
-* [Node.js](https://nodejs.org/en/)
+- [.NET Core](https://dotnet.microsoft.com/download)
+- [Visual Studio](https://visualstudio.microsoft.com/downloads/) _[optional]_
 
+## Contributors
 
-### Installation  
+- [Tori Bench](https://github.com/ToriBench)
+- [Carmen Janse Van Rensburg](https://github.com/Carmen-JvR)
+- [Mpho Futjane](https://github.com/Mpho-BBD)
+- [Ntobeko Mvubu](https://github.com/NtobekoMvubu)
+- [Aaron Sher](https://github.com/aaronsh1)
+- [Fabio Sousa Vieira](https://github.com/FabioSVBBD)
 
-1. Clone the repo
-   ```sh
-   git clone https://github.com/ChadleyM/RubixCube.git
-   ```
-2. Change directories to the cloned repo
-   ```sh
-   cd RubixCube
-   ```
-3. Install packages
-   ```sh
-   npm install
-   ```
-4. Run the app in dev mode
-   ```sh
-   npm run dev
-   ```
+# Endpoints
 
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-
-<!-- CONTACT -->
-## Authors
-
-Tori Bench
-
-
+_`GET`_ _/api/question_
+_`PATCH`_
+_`PUT`_
+_`DELETE`_
+_`PATCH`_
+_`POST`_	
 
 <p align="right">(<a href="#top">back to top</a>)</p>
-
-
-
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-
-
-<!-- MARKDOWN LINKS & IMAGES -->
-<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[contributors-shield]: https://img.shields.io/github/contributors/ChadleyM/RubixCube.svg?style=for-the-badge
-[contributors-url]: https://github.com/ChadleyM/RubixCube/graphs/contributors
-[issues-shield]: https://img.shields.io/github/issues/ChadleyM/RubixCube.svg?style=for-the-badge
-[issues-url]: https://github.com/ChadleyM/RubixCube/issues
-
