@@ -152,7 +152,7 @@ namespace QuizAPI.Controllers
         {
             Question? questionToChange = _context.Questions.Find(id);
 
-            if (questionToChange == null)
+            if (questionToChange == null || !questionToChange.Status.StatusName.Equals("approved"))
             {
                 return NotFound();
             }
@@ -261,7 +261,7 @@ namespace QuizAPI.Controllers
         {
             Question? question = _context.Questions.Find(id);
 
-            if (question == null)
+            if (question == null || !question.Status.StatusName.Equals("approved"))
             {
                 return NotFound();
             }
@@ -274,6 +274,18 @@ namespace QuizAPI.Controllers
             {
                 return BadRequest(_invalidResponseUtil.getMissingFieldsResponse());
             }
+
+            _context.QuestionTags.RemoveRange(_context.QuestionTags.Where(qt => qt.QuestionId == question.QuestionId));
+            _context.SaveChanges();
+
+            //List<QuestionTag> qtToDelete = _context.QuestionTags.Where(qt => qt.QuestionId == id).ToList();
+            //foreach(QuestionTag qt in qtToDelete)
+            //{
+            //    Console.WriteLine(qt.Tag.TagName);
+            //    _context.QuestionTags.Remove(qt);
+            //    _context.SaveChanges();
+            //}
+
 
             question.Question1 = updatedQuestion.Question;
             question.Answer = updatedQuestion.Answer;
